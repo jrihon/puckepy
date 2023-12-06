@@ -51,7 +51,11 @@ impl Sixring {
             a3.push(dihedral(pyr.p3, pyr.p5, pyr.p1, pyr.p6));
         };
 
-        Self { alpha1: a1, alpha2: a2, alpha3: a3 }
+        Self { 
+            alpha1: a1.iter().map(|x| if x < &0. {x + 360.} else {*x}).collect(),
+            alpha2: a2.iter().map(|x| if x < &0. {x + 360.} else {*x}).collect(),
+            alpha3: a3.iter().map(|x| if x < &0. {x + 360.} else {*x}).collect(),
+        }
 
     }
 }

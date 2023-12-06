@@ -10,6 +10,9 @@ name = "puckepy"
 crate-type = ["cdylib"]
 
 [dependencies]
+nalgebra = "0.31.3"
+ndarray = "0.15.6"
+assert_float_eq = "1"
 
 [dependencies.pyo3]
 version = "0.19.0"

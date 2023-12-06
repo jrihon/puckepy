@@ -6,12 +6,10 @@ use pyo3::{pyclass, pymethods};
 /// public `phi` field : Array1<f32>
 /// public `psi` field : Array1<f32>
 /// Needs to be a public struct is it gets returned to the user
-#[pyclass]
+#[pyclass(get_all)]
 pub struct Peptide {
     phi : Vec<f32>,
     psi : Vec<f32>,
-//    phi : Array1<f32>,
-//    psi : Array1<f32>,
 }
 
 #[pymethods]
@@ -26,8 +24,6 @@ impl Peptide {
 
         let mut phi = Vec::with_capacity(amount);
         let mut psi = Vec::with_capacity(amount);
-//        let mut phi = Array1::zeros(amount);
-//        let mut psi = Array1::zeros(amount);
         
         let mut x : f32;
         let mut y : f32;
@@ -40,8 +36,6 @@ impl Peptide {
             // fill out the array
             phi.push(bb.x[x as usize]); 
             psi.push(bb.y[y as usize]); 
-//            phi[i as usize] = bb.x[x as usize]; 
-//            psi[i as usize] = bb.y[y as usize]; 
         }
 
         Self {
@@ -50,13 +44,13 @@ impl Peptide {
         }
     }
 
-    fn get_phi(&self) -> Vec<f32> {
-        self.phi.clone()
-    }
-
-    fn get_psi(&self) -> Vec<f32> {
-        self.psi.clone()
-    }
+//    fn get_phi(&self) -> Vec<f32> {
+//        self.phi.clone()
+//    }
+//
+//    fn get_psi(&self) -> Vec<f32> {
+//        self.psi.clone()
+//    }
 }
 //
 /// The axes to iterate over for peptide-like molecules : 

@@ -5,7 +5,7 @@ use pyo3::{pyclass, pymethods};
 
 const FOURPIOVERFIVE : f32 = (4. * PI) / 5.;
 
-#[pyclass]
+#[pyclass(get_all)]
 pub struct Fivering {
     nu1: Vec<f32>,
     nu3: Vec<f32>,
@@ -53,14 +53,6 @@ impl Fivering {
             nu3 : nu3.iter().map(|x| if x < &0. { x + 360.} else {*x}).collect()
         }
 
-    }
-
-    fn get_nu1(&self) -> Vec<f32> {
-        self.nu1.clone()
-    }
-
-    fn get_nu3(&self) -> Vec<f32> {
-        self.nu3.clone()
     }
 }
 

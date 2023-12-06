@@ -4,8 +4,9 @@ mod geometry;
 mod conf_sampling;
 
 use conf_sampling::{
-    fivering::Fivering,
     peptide::Peptide,
+    fivering::Fivering,
+    sixring::Sixring,
 };
 
 /// Create a function to call from the Python package
@@ -60,6 +61,7 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     // Add class
     cs_module.add_class::<Peptide>()?;
     cs_module.add_class::<Fivering>()?;
+    cs_module.add_class::<Sixring>()?;
     // Append submodule to root module
     m.add_submodule(cs_module)?;
 

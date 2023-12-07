@@ -2,6 +2,7 @@ use pyo3::prelude::*;
 
 mod geometry;
 mod conf_sampling;
+mod molfile;
 
 use conf_sampling::{
     peptide::Peptide,
@@ -9,36 +10,9 @@ use conf_sampling::{
     sixring::Sixring,
 };
 
-/// Create a function to call from the Python package
-#[pyfunction]
-fn helloworld() {
-    println!("Hello, from Rust!");
-}
-
-
-#[pyfunction]
-/// This is the name of the function
-fn add_two(a: i32) -> i32 {
-    a + 2
-}
-
-#[pyclass]
-struct Number {
-    nummie: i32
-}
-
-#[pymethods()]
-impl Number {
-
-    #[new]
-    fn new(nummie: i32) -> Self {
-        Self {nummie}
-    }
-
-    fn get_number(&self) -> i32 {
-        self.nummie
-    }
-}
+use molfile::{
+    Pdb, Xyz
+};
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
@@ -46,25 +20,66 @@ impl Number {
 #[pymodule]
 fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
 
-    m.add_function(wrap_pyfunction!(helloworld, m)?)?;
-    m.add_function(wrap_pyfunction!(add_two, m)?)?;
+//    m.add_function(wrap_pyfunction!(helloworld, m)?)?;
+//    m.add_function(wrap_pyfunction!(add_two, m)?)?;
+//    // Testing
+//    m.add_class::<Number>()?;
 
     let geom_sub_module = PyModule::new(py, "geometry")?;
     geom_sub_module.add_function(wrap_pyfunction!(geometry::testing_submodule, geom_sub_module)?)?;
     m.add_submodule(geom_sub_module)?;
 
-    // Testing
-    m.add_class::<Number>()?;
 
-    // Add module
+    // Add conformational sampling module
     let cs_module = PyModule::new(py, "conf_sampling")?;
-    // Add class
+    // Add conf_sampling class
     cs_module.add_class::<Peptide>()?;
     cs_module.add_class::<Fivering>()?;
     cs_module.add_class::<Sixring>()?;
+    //
     // Append submodule to root module
     m.add_submodule(cs_module)?;
 
+    // Add molfile module
+    let molfile_module = PyModule::new(py, "molfile")?;
+    // Add function
+    molfile_module.add_function(wrap_pyfunction!(molfile::from_pdb, molfile_module)?)?;
+    molfile_module.add_function(wrap_pyfunction!(molfile::from_xyz, molfile_module)?)?;
+    // Add molfile class
+    cs_module.add_class::<Pdb>()?;
+    cs_module.add_class::<Xyz>()?;
+    //
+    // Append submodule to root module
+    m.add_submodule(molfile_module)?;
     Ok(())
 
 }
+
+//#[pyfunction]
+//fn helloworld() {
+//    println!("Hello, from Rust!");
+//}
+//
+//#[pyfunction]
+// This is the name of the function
+//fn add_two(a: i32) -> i32 {
+//    a + 2
+//}
+//
+//#[pyclass]
+//struct Number {
+//    nummie: i32
+//}
+//
+//#[pymethods()]
+//impl Number {
+//
+//    #[new]
+//    fn new(nummie: i32) -> Self {
+//        Self {nummie}
+//    }
+//
+//    fn get_number(&self) -> i32 {
+//        self.nummie
+//    }
+//}

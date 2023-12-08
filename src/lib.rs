@@ -14,6 +14,11 @@ use conf_sampling::{
 use molfile::{
     Pdb, Xyz
 };
+
+use formalism::{
+    CP, AS
+};
+
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
@@ -52,35 +57,15 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     //
     // Append submodule to root module
     m.add_submodule(molfile_module)?;
+
+    // Add formalism module
+    let form_module = PyModule::new(py, "formalism")?;
+    form_module.add_class::<CP>()?;
+    form_module.add_class::<AS>()?;
+    //
+    // Append submodule to root module
+    m.add_submodule(form_module)?;
     Ok(())
 
 }
 
-//#[pyfunction]
-//fn helloworld() {
-//    println!("Hello, from Rust!");
-//}
-//
-//#[pyfunction]
-// This is the name of the function
-//fn add_two(a: i32) -> i32 {
-//    a + 2
-//}
-//
-//#[pyclass]
-//struct Number {
-//    nummie: i32
-//}
-//
-//#[pymethods()]
-//impl Number {
-//
-//    #[new]
-//    fn new(nummie: i32) -> Self {
-//        Self {nummie}
-//    }
-//
-//    fn get_number(&self) -> i32 {
-//        self.nummie
-//    }
-//}

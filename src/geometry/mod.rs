@@ -108,7 +108,6 @@ impl LinAlg for Coordinate {
 ///
 /// Provide standard linear algebra operations also as
 /// standalone function
-#[allow(dead_code)]
 pub fn dot_product(a : Coordinate, b : Coordinate) -> f32 {
     (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2])
 

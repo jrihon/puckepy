@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod geometry;
 mod conf_sampling;
 mod molfile;
+mod formalism;
 
 use conf_sampling::{
     peptide::Peptide,

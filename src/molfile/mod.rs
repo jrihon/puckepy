@@ -6,15 +6,15 @@ use pyo3::{pyfunction, pyclass,PyErr};
 /// Coordinates, best to do as Vec<[f32;3]>
 #[pyclass(get_all)]
 pub struct Pdb {
-    atom_names: Vec<String>,
-    coordinates: Vec<[f32;3]>
+    pub atom_names: Vec<String>,
+    pub coordinates: Vec<[f32;3]>
 }
 
 /// The only thing we need from the xyz is 
 /// Coordinates, best to do as Vec<[f32;3]>
 #[pyclass(get_all)]
 pub struct Xyz {
-    coordinates: Vec<[f32;3]>
+    pub coordinates: Vec<[f32;3]>
 }
 
 /// Parses an xyz-file format

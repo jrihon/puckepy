@@ -4,6 +4,7 @@ mod geometry;
 mod conf_sampling;
 mod molfile;
 mod formalism;
+mod inversion;
 
 use conf_sampling::{
     peptide::Peptide,
@@ -18,6 +19,9 @@ use molfile::{
 use formalism::{
     CP, AS
 };
+
+use inversion::sixring;
+
 
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
@@ -65,6 +69,13 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     //
     // Append submodule to root module
     m.add_submodule(form_module)?;
+
+    // Add inversion module
+    let inv_module = PyModule::new(py, "inversion")?;
+    inv_module.add_function(wrap_pyfunction!(sixring::invert_sixring, inv_module)?)?;
+    //
+    // Append submodule to root module
+    m.add_submodule(inv_module)?;
     Ok(())
 
 }

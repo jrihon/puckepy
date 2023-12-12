@@ -99,7 +99,6 @@ impl Xyz {
 }
 
 
-
 #[pymethods]
 impl Pdb {
 

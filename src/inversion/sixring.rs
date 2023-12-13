@@ -1,5 +1,3 @@
-// test
-
 use pyo3::pyfunction;
 use crate::geometry::{LinAlg, Coordinate, RotMatrix, RotationMatrix, subtract_arr};
 use std::f32::consts::PI;
@@ -14,23 +12,14 @@ pub const COSBIJK : f32 = -1./3. ;
 #[pyfunction]
 pub fn invert_sixring(rho: f32, phi2: f32, theta: f32) -> [[f32; 3]; 6] {
 
-    // Calculate local elevation
-    let constant1 = [0.,1.,2.,3.,4.,5.].map(|j| ((TWOPI * j) / 3.));
-    let constant2 = [0,1,2,3,4,5].map(|j| (-1_f32).powi(j));
-
-    let one_over_sqrt_three: f32 = 3_f32.sqrt() ;
-    let one_over_sqrt_six: f32 = 6_f32.sqrt() ;
-
-    let zj = local_elevation(rho, phi2, theta, constant1, constant2,
-                                                  one_over_sqrt_three, one_over_sqrt_six);
-
+    let zj = local_elevation(rho, phi2, theta);
 
     let projection = projection_and_partition(&zj);
 
     let sixring = reconstruct_coordinates(projection, zj);
 
 
-    // Placeholder return value
+    // For now, we keep it like this
     [
         sixring.p1,
         sixring.p2,
@@ -43,14 +32,22 @@ pub fn invert_sixring(rho: f32, phi2: f32, theta: f32) -> [[f32; 3]; 6] {
 
 
 
-fn local_elevation(rho : f32, phi2: f32, theta: f32, c1 : [f32;6],  c2 : [f32;6],
-                             onethree: f32, onesix: f32) -> [f32;6] {
+fn local_elevation(rho : f32, phi2: f32, theta: f32) -> [f32;6] {
     
-    // iterate over the two arrays of constants
-    c1.iter().zip(c2.iter()).map(|(one, two)| {
+    let phi2 = phi2.to_radians();
+    let theta = theta.to_radians();
+    // Calculate local elevation
+    let constant1 = [0.,1.,2.,3.,4.,5.].map(|j| ((TWOPI * j) / 3.));
+    let constant2 = [0,1,2,3,4,5].map(|j| (-1_f32).powi(j));
 
-    let term1 = (phi2.sin() * (theta + one).cos()) / onethree;
-    let term2 = (phi2.cos() * two) / onesix ; // second term of the equation
+    let one_over_sqrt_three: f32 = 3_f32.sqrt() ;
+    let one_over_sqrt_six: f32 = 6_f32.sqrt() ;
+
+    // iterate over the two arrays of constants
+    constant1.iter().zip(constant2.iter()).map(|(one, two)| {
+
+    let term1 = (theta.sin() * (phi2 + one).cos()) / one_over_sqrt_three;
+    let term2 = (theta.cos() * two) / one_over_sqrt_six ; // second term of the equation
     (term1 + term2) * rho // multiply by rho, which was pushed out by both terms to the outside of the equation
 
     }).collect::<Vec<f32>>()
@@ -113,7 +110,6 @@ fn projection_and_partition(zj: &[f32;6]) -> ProjectionPartition {
     }
 }
 
-#[derive(Debug)]
 pub struct SixRingAtoms {
     pub p1 : Coordinate,
     pub p2 : Coordinate,
@@ -138,7 +134,6 @@ impl SixRingAtoms {
 }
 
 #[allow(dead_code)] // -> fields s11, s25 and s31 are never read. Included for declarative purposes
-#[derive(Debug)]
 struct PointPositions {
     s11 : Coordinate,
     s12 : Coordinate,

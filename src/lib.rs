@@ -22,7 +22,8 @@ use formalism::{
 
 use inversion::{
     sixring,
-    write_pdb
+    write_pdb,
+    write_xyz
 };
 
 
@@ -77,6 +78,7 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     let inv_module = PyModule::new(py, "inversion")?;
     inv_module.add_function(wrap_pyfunction!(sixring::invert_sixring, inv_module)?)?;
     inv_module.add_function(wrap_pyfunction!(write_pdb, inv_module)?)?;
+    inv_module.add_function(wrap_pyfunction!(write_xyz, inv_module)?)?;
     //
     // Append submodule to root module
     m.add_submodule(inv_module)?;

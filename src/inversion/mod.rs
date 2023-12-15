@@ -17,7 +17,7 @@ pub mod fivering;
 ///
 /// https://doc.rust-lang.org/std/fmt/index.html#syntax : Formatting syntax in Rust
 #[pyfunction]
-pub fn write_pdb(fname: OsString,  array: [[f32;3];6], resname: String) -> Result<(), PyErr> {
+pub fn write_pdb(fname: OsString,  array: Vec<[f32;3]>, resname: String) -> Result<(), PyErr> {
     
     let mut fname: String = fname.to_str().expect("Passed argument `fname` contains invalid UTF-8").to_owned();
     if !fname.ends_with(".pdb"){ 
@@ -55,7 +55,7 @@ pub fn write_pdb(fname: OsString,  array: [[f32;3];6], resname: String) -> Resul
 }
 
 #[pyfunction]
-pub fn write_xyz(fname: OsString, array: [[f32;3];6]) -> Result<(), PyErr> {
+pub fn write_xyz(fname: OsString, array: Vec<[f32;3]>) -> Result<(), PyErr> {
 
     let mut fname: String = fname.to_str().expect("Passed argument `fname` contains invalid UTF-8").to_owned();
     if !fname.ends_with(".xyz"){ 

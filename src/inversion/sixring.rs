@@ -6,7 +6,7 @@ use crate::conf_sampling::sixring::TWOPI;
 
 pub const RIJ : f32 = 1.54;
 pub const RIJSQ : f32 = 1.54*1.54;
-pub const COSBIJK : f32 = -1./3. ;
+pub const COSBIJK : f32 = -1./3. ; // cos(109.5)
 //use crate::conf_sampling::sixring::Z_SIZE;
 
 #[pyfunction]

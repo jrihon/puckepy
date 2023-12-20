@@ -58,8 +58,8 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     // Add molfile module
     let molfile_module = PyModule::new(py, "molfile")?;
     // Add function
-    molfile_module.add_function(wrap_pyfunction!(molfile::from_pdb, molfile_module)?)?;
-    molfile_module.add_function(wrap_pyfunction!(molfile::from_xyz, molfile_module)?)?;
+//    molfile_module.add_function(wrap_pyfunction!(molfile::from_pdb, molfile_module)?)?;
+//    molfile_module.add_function(wrap_pyfunction!(molfile::from_xyz, molfile_module)?)?;
     // Add molfile class
     cs_module.add_class::<Pdb>()?;
     cs_module.add_class::<Xyz>()?;

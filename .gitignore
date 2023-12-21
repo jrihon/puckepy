@@ -2,3 +2,9 @@
 /readme-to-me.md
 /pythontests
 /pyrightconfig.json
+/puckepy/puckepy.abi3.so
+/puckepy/__pycache__
+/puckepy/molfile/__pycache__
+/puckepy/inversion/__pycache__
+/puckepy/formalism/__pycache__
+/puckepy/confsampling/__pycache__

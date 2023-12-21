@@ -2,7 +2,7 @@ use pyo3::prelude::*;
 
 mod geometry;
 mod conf_sampling;
-mod molfile;
+//mod molfile;
 mod formalism;
 mod inversion;
 
@@ -12,12 +12,12 @@ use conf_sampling::{
     sixring::Sixring,
 };
 
-use molfile::{
-    Pdb, Xyz
-};
+//use molfile::{
+//    Pdb, Xyz
+//};
 
 use formalism::{
-    CP, AS
+    CP, AS, Pdb, Xyz
 };
 
 use inversion::{

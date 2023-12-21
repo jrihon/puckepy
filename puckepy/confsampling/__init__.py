@@ -1,5 +1,6 @@
 """ 
 puckepy.confsampling
+====================
 
 Import the confsampling module in order to generate the landscape
 of sample the molecular system of choice

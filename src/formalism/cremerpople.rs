@@ -1,10 +1,23 @@
 use std::f32::consts::PI;
 use crate::conf_sampling::sixring::TWOPI;
 
+use crate::CP;
+
 use crate::geometry::{normalise_vector, cross_product, dot_product};
 
+// The Cremer-Pople algorithm
+pub fn cremer_pople(molarray: &mut Vec<[f32; 3]>) -> CP {
+    
+    geometric_center_of_molecule(molarray);
+    let mol_axis = molecular_axis(&molarray);
+    let zj = local_elevation(&molarray, mol_axis);
+    let (amplitude, phase_angle) = return_cp_coordinates(zj);
+
+    CP::new(amplitude, phase_angle)
+}
+
 // Copied the coordinates over to make the array a mutable reference
-pub fn geometric_center_of_molecule(molarray : &mut Vec<[f32;3]>) { 
+fn geometric_center_of_molecule(molarray : &mut Vec<[f32;3]>) { 
 
     let (x, y, z) = calculate_average_per_dimension(&molarray);
 
@@ -18,7 +31,7 @@ pub fn geometric_center_of_molecule(molarray : &mut Vec<[f32;3]>) {
 
 }
 
-pub fn molecular_axis(molarray : &Vec<[f32;3]>) -> [f32;3] { 
+fn molecular_axis(molarray : &Vec<[f32;3]>) -> [f32;3] { 
 
     let (cos_uv, sin_uv) = unit_vector(molarray.len() as f32);
 
@@ -46,14 +59,14 @@ pub fn molecular_axis(molarray : &Vec<[f32;3]>) -> [f32;3] {
 // Calculate local elevation by taking the dot product of the 
 // centered molecule's array and doing a dot(a, b) every 
 // coordinates and the molecular_axis
-pub fn local_elevation(molarray : &Vec<[f32;3]>, mol_axis: [f32;3]) -> Vec<f32> {
+fn local_elevation(molarray : &Vec<[f32;3]>, mol_axis: [f32;3]) -> Vec<f32> {
 
-    let zj = molarray.iter().map(|coord| dot_product(*coord, mol_axis) ).collect();
-    zj
+    // iterate over the array and get the local elevation for every coordinate
+    molarray.iter().map(|coord| dot_product(*coord, mol_axis) ).collect()
 }
 
 // Calculate the Cremer Pople Coordinates based on the local elevation
-pub fn return_cp_coordinates(zj : Vec<f32>) -> (f32, f32) { 
+fn return_cp_coordinates(zj : Vec<f32>) -> (f32, f32) { 
 
     // constant values for the calculations 
     let size = zj.len() as f32;

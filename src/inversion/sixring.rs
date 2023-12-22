@@ -3,11 +3,7 @@ use crate::geometry::{LinAlg, Coordinate, RotMatrix, RotationMatrix, subtract_ar
 use std::f32::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;
-
-pub const RIJ : f32 = 1.54;
-pub const RIJSQ : f32 = 1.54*1.54;
-pub const COSBIJK : f32 = -1./3. ; // cos(109.5)
-//use crate::conf_sampling::sixring::Z_SIZE;
+use crate::inversion::{RIJ, RIJSQ, COSBIJK};
 
 #[pyfunction]
 pub fn invert_sixring(rho: f32, phi2: f32, theta: f32) -> [[f32; 3]; 6] {
@@ -52,7 +48,7 @@ fn local_elevation(rho : f32, phi2: f32, theta: f32) -> [f32;6] {
 
     }).collect::<Vec<f32>>()
       .try_into().unwrap() // we are certain that it will collect into a [f32;6] as both arrays
-                            // are of the same size
+                           // are of the same size. This function is not available as public
 
 }
 

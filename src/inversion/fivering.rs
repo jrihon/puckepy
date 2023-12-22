@@ -3,11 +3,7 @@ use crate::geometry::{Coordinate, RotMatrix, RotationMatrix, subtract_arr};
 use std::f32::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;
-
-pub const RIJ : f32 = 1.54;
-pub const RIJSQ : f32 = 1.54*1.54;
-pub const COSBIJK : f32 = -1./3. ;// cos(109.5)
-//use crate::conf_sampling::sixring::Z_SIZE;
+use crate::inversion::{RIJ, RIJSQ, COSBIJK};
 
 #[pyfunction]
 pub fn invert_fivering(rho: f32, phi2: f32) -> [[f32; 3]; 5] {
@@ -143,17 +139,8 @@ struct PointPositions {
 }
 
 pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f32;5]) -> FiveRingAtoms {
-    // proj : projections and partitioning. 
 
-    // Add the local evelation already as the z-coordinate to the final molecule's array
-    let mut sixring = FiveRingAtoms {
-        p1 : [0., 0., z_j[0]],
-        p2 : [0., 0., z_j[1]],
-        p3 : [0., 0., z_j[2]],
-        p4 : [0., 0., z_j[3]],
-        p5 : [0., 0., z_j[4]],
-    };
-
+    // Create the partitions
     let pyranose = PointPositions {
             s11 : 
                 [0.,
@@ -209,7 +196,7 @@ pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f32;5]) -> Fiv
     let sigma3 = rho3;
 
     // p1, p3, p5 already exist on the xy'-plane, so need only to rotate p2,p4,p6
-    let tmp_sixring = FiveRingAtoms {
+    let tmp_fivering = FiveRingAtoms {
         p1 : p_o,
         p2 : RotationMatrix::new(-sigma1).apply_rotation(pyranose.s12),
         p3 : p_p,
@@ -218,24 +205,35 @@ pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f32;5]) -> Fiv
     };
 
     // Calculate geometric center
-    let p_g : Coordinate = tmp_sixring.calculate_geometric_center();
+    let p_g : Coordinate = tmp_fivering.calculate_geometric_center();
     // Derive final rotation matrix
     let rho_g = (PI / 2.) + p_g[1].atan2(p_g[0]);
     let rot4 = RotationMatrix::new(-rho_g);
 
+
+
+    // Add the local evelation already as the z-coordinate to the final molecule's array
+    let mut fivering = FiveRingAtoms {
+        p1 : [0., 0., z_j[0]],
+        p2 : [0., 0., z_j[1]],
+        p3 : [0., 0., z_j[2]],
+        p4 : [0., 0., z_j[3]],
+        p5 : [0., 0., z_j[4]],
+    };
+
     // final rotation
-    sixring.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p1, p_g), 0); // centers to array around geometric center too
-    sixring.p2[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p2, p_g), 0);
-    sixring.p3[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p3, p_g), 0);
-    sixring.p4[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p4, p_g), 0);
-    sixring.p5[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p5, p_g), 0);
+    fivering.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p1, p_g), 0); // centers to array around geometric center too
+    fivering.p2[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p2, p_g), 0);
+    fivering.p3[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p3, p_g), 0);
+    fivering.p4[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p4, p_g), 0);
+    fivering.p5[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p5, p_g), 0);
 
-    sixring.p1[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p1, p_g), 1);
-    sixring.p2[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p2, p_g), 1);
-    sixring.p3[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p3, p_g), 1);
-    sixring.p4[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p4, p_g), 1);
-    sixring.p5[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p5, p_g), 1);
+    fivering.p1[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p1, p_g), 1);
+    fivering.p2[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p2, p_g), 1);
+    fivering.p3[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p3, p_g), 1);
+    fivering.p4[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p4, p_g), 1);
+    fivering.p5[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p5, p_g), 1);
 
 
-    sixring
+    fivering
 }

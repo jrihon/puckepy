@@ -1,17 +1,17 @@
 use pyo3::{pymethods,pyclass, PyErr};
-
 use std::fs;
-//use crate::molfile::Xyz;
 
-use self::cremerpople::{
-    geometric_center_of_molecule,
-    molecular_axis,
-    local_elevation,
-    return_cp_coordinates
-};
-//
+
 pub mod cremerpople;
+pub mod altonasund;
 
+mod search_atomname;
+use self::search_atomname::FindString;
+
+//enum System {
+//    Fivering,
+//    Sixring
+//}
 
 /// The CP tuple-struct holds the (amplitude, phase_angle) parameters
 #[pyclass(get_all)]
@@ -47,7 +47,7 @@ impl CP {
         // This cuts out an operation or two down the line
         let new_angle = if self.phase_angle < 90. { self.phase_angle + 270. } else { self.phase_angle - 90. };
 
-        AS { amplitude: self.amplitude, phase_angle : new_angle }
+        AS::new(self.amplitude, new_angle)
 
     }
     
@@ -87,7 +87,7 @@ impl AS {
         // This cuts out an operation or two down the line
         let new_angle = if self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. };
 
-        CP {amplitude: self.amplitude, phase_angle: new_angle }
+        CP::new(self.amplitude, new_angle)
 
     }
 }
@@ -169,22 +169,19 @@ impl Pdb {
     }
 
 
+    // Calculate Cremer-Pople formalism by prompted indices
     fn cp_from_indices(&self, indices: Vec<usize>) -> CP {
         
-        let mut molarray = vec![];
+        let mut molarray: Vec<[f32; 3]> = vec![];
 
         for idx in indices {
             molarray.push(self.coordinates[idx])
-        };
+        }
 
-        geometric_center_of_molecule(&mut molarray);
-        let mol_axis = molecular_axis(&molarray);
-        let zj = local_elevation(&molarray, mol_axis);
-        let (amplitude, phase_angle) = return_cp_coordinates(zj);
-
-        CP { amplitude, phase_angle }
+        cremerpople::cremer_pople(&mut molarray)
     }
     
+    // Find indices of atomnames and pass them to self.cp_from_indices()
     fn cp_from_atomnames(&self, query_names: Vec<String>) -> CP {
 
         // Make empty vec :
@@ -192,49 +189,44 @@ impl Pdb {
 
         // Search for the indices of the atom names
         for name in query_names.iter() {
-            match self.atom_names.at(name) {
+            match self.atom_names.at_position(name) {
                 Ok(a) => indices.push(a),
-                Err(()) => panic!("Could not find {} in the queried pdb.", name)
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.cp_from_indices(indices)
+    }
+
+    // Calculate Altona Sundaralingam formalism by the indices
+    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
+        
+        let mut molarray: Vec<[f32; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(self.coordinates[idx])
+        }
+
+        altonasund::altona_sundaralingam(&molarray)
+    }
+    
+    // Find the indices of the atomnames and pass them to self.as_from_indices()
+    fn as_from_atomnames(&self, query_names: Vec<String>) -> AS {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match self.atom_names.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
             }
         }
 
         // Call cp_from_indices
-        self.cp_from_indices(indices)
+        self.as_from_indices(indices)
     }
-}
-
-trait FindString {
-    fn at(&self, pattern: &str) -> Result<usize, ()> ;
-}
-
-impl FindString for Vec<String> {
-
-    fn at(&self, pattern: &str) -> Result<usize, ()> {
-
-        let mut c = 0;
-
-        for name in self {
-            if name != pattern {
-                c += 1
-            } else { 
-                return Ok(c as usize) 
-            }
-        };
-
-        Err(())
-
-//        let a = self.iter().try_fold( 0_u32, |mut prev: u32, atomname| 
-//            {
-//                if atomname == pattern {
-//                    ControlFlow::Continue(prev += 1_u32)
-//                } else {
-//                    ControlFlow::Break(prev)
-//                }
-//            });
-//
-//        Ok(4)
-    }
-    
 }
 
 
@@ -310,7 +302,7 @@ impl Xyz {
         Ok(Xyz { coordinates})
     }
 
-    fn cp_from_indices(&self, indices: Vec<usize>) -> CP {
+    fn cp_from_indices(&self, indices: Vec<usize>) -> AS {
         
         let mut molarray = vec![];
 
@@ -318,12 +310,7 @@ impl Xyz {
             molarray.push(self.coordinates[idx])
         };
 
-        geometric_center_of_molecule(&mut molarray);
-        let mol_axis = molecular_axis(&molarray);
-        let zj = local_elevation(&molarray, mol_axis);
-        let (amplitude, phase_angle) = return_cp_coordinates(zj);
-
-        CP { amplitude, phase_angle }
+        altonasund::altona_sundaralingam(&molarray)
     }
     
 }

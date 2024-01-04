@@ -1,12 +1,12 @@
 use pyo3::pyfunction;
 use crate::geometry::{Coordinate, RotMatrix, RotationMatrix, subtract_arr};
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;
 use crate::inversion::{RIJ, RIJSQ, COSBIJK};
 
 #[pyfunction]
-pub fn invert_fivering(rho: f32, phi2: f32) -> [[f32; 3]; 5] {
+pub fn invert_fivering(rho: f64, phi2: f64) -> [[f64; 3]; 5] {
 
     let zj = local_elevation(rho, phi2);
 
@@ -27,42 +27,42 @@ pub fn invert_fivering(rho: f32, phi2: f32) -> [[f32; 3]; 5] {
 
 
 
-fn local_elevation(rho : f32, phi2: f32) -> [f32;5] {
+fn local_elevation(rho : f64, phi2: f64) -> [f64;5] {
     
     let phi2 = phi2.to_radians();
     // Calculate local elevation
     let constant1 = [0.,1.,2.,3.,4.].map(|j| ((2. * TWOPI * j) / 5.));
 
-    let two_fifth_sqrt: f32 = (2_f32/5_f32).sqrt() ;
-//    let one_over_sqrt_six: f32 = 6_f32.sqrt() ;
+    let two_fifth_sqrt: f64 = (2_f64/5_f64).sqrt() ;
+//    let one_over_sqrt_six: f64 = 6_f64.sqrt() ;
 
     // Rework of Z_j over fiverings works
     constant1.iter().map(|one| {
 
     ((phi2 + one).cos() * two_fifth_sqrt) * rho
 
-    }).collect::<Vec<f32>>()
-      .try_into().unwrap() // we are certain that it will collect into a [f32;6] as both arrays
+    }).collect::<Vec<f64>>()
+      .try_into().unwrap() // we are certain that it will collect into a [f64;6] as both arrays
                             // are of the same size
 
 }
 
 // Store ring partitioning in the struct
 pub struct ProjectionPartition {
-    pub rpij : [f32;5],
-    pub cosbpijk : [f32;5],
-    pub sinbpijk : [f32;5],
-    pub op : f32,
-    pub qp : f32,
-    pub oq : f32,
+    pub rpij : [f64;5],
+    pub cosbpijk : [f64;5],
+    pub sinbpijk : [f64;5],
+    pub op : f64,
+    pub qp : f64,
+    pub oq : f64,
 
 }
 
-fn projection_and_partition(zj: &[f32;5]) -> ProjectionPartition {
+fn projection_and_partition(zj: &[f64;5]) -> ProjectionPartition {
 
-    let mut rpij_arr: [f32;5] = [0.;5];
-    let mut cospb_arr: [f32;5] =  [0.;5];
-    let mut sinpb_arr: [f32;5] = [0.;5];
+    let mut rpij_arr: [f64;5] = [0.;5];
+    let mut cospb_arr: [f64;5] =  [0.;5];
+    let mut sinpb_arr: [f64;5] = [0.;5];
 
     for j in 0..5 {
         rpij_arr[j] = ( RIJSQ - 
@@ -89,10 +89,10 @@ fn projection_and_partition(zj: &[f32;5]) -> ProjectionPartition {
     // S1 : op = (r12, r23, B123)
     // S2 : qp = r34
     // S3 : oq = (r45, r51, B451)
-    let op: f32 = (( rpij_arr[0].powi(2) + rpij_arr[1].powi(2) ) - (2. * rpij_arr[0] * rpij_arr[1] * cospb_arr[0])).sqrt();
-    let qp: f32 = rpij_arr[2]; // S3 is just a segment of the line, since sqrt(r_51 * r_51) = r_51,
+    let op: f64 = (( rpij_arr[0].powi(2) + rpij_arr[1].powi(2) ) - (2. * rpij_arr[0] * rpij_arr[1] * cospb_arr[0])).sqrt();
+    let qp: f64 = rpij_arr[2]; // S3 is just a segment of the line, since sqrt(r_51 * r_51) = r_51,
                                // and N - 3 = 2 bond angles total, so cosB234 does not exist here
-    let oq: f32 = (( rpij_arr[3].powi(2) + rpij_arr[4].powi(2) ) - (2. * rpij_arr[3] * rpij_arr[4] * cospb_arr[3])).sqrt();
+    let oq: f64 = (( rpij_arr[3].powi(2) + rpij_arr[4].powi(2) ) - (2. * rpij_arr[3] * rpij_arr[4] * cospb_arr[3])).sqrt();
 
     ProjectionPartition { 
         rpij: rpij_arr,
@@ -138,7 +138,7 @@ struct PointPositions {
     s31 : Coordinate,
 }
 
-pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f32;5]) -> FiveRingAtoms {
+pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f64;5]) -> FiveRingAtoms {
 
     // Create the partitions
     let pyranose = PointPositions {

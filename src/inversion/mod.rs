@@ -7,9 +7,9 @@ pub mod sixring;
 pub mod fivering;
 
 
-pub const RIJ : f32 = 1.54;
-pub const RIJSQ : f32 = 1.54*1.54;
-pub const COSBIJK : f32 = -1./3. ;// cos(109.5)
+pub const RIJ : f64 = 1.54;
+pub const RIJSQ : f64 = 1.54*1.54;
+pub const COSBIJK : f64 = -1./3. ;// cos(109.5)
 //use crate::conf_sampling::sixring::Z_SIZE;
 
 
@@ -21,7 +21,7 @@ pub const COSBIJK : f32 = -1./3. ;// cos(109.5)
 ///
 /// https://doc.rust-lang.org/std/fmt/index.html#syntax : Formatting syntax in Rust
 #[pyfunction]
-pub fn write_pdb(fname: OsString,  array: Vec<[f32;3]>, resname: String) -> Result<(), PyErr> {
+pub fn write_pdb(fname: OsString,  array: Vec<[f64;3]>, resname: String) -> Result<(), PyErr> {
     
     let mut fname: String = fname.to_str().expect("Passed argument `fname` contains invalid UTF-8").to_owned();
     if !fname.ends_with(".pdb"){ 
@@ -59,7 +59,7 @@ pub fn write_pdb(fname: OsString,  array: Vec<[f32;3]>, resname: String) -> Resu
 }
 
 #[pyfunction]
-pub fn write_xyz(fname: OsString, array: Vec<[f32;3]>) -> Result<(), PyErr> {
+pub fn write_xyz(fname: OsString, array: Vec<[f64;3]>) -> Result<(), PyErr> {
 
     let mut fname: String = fname.to_str().expect("Passed argument `fname` contains invalid UTF-8").to_owned();
     if !fname.ends_with(".xyz"){ 

@@ -4,21 +4,21 @@ use ndarray::{Array1, Array2, ArrayBase, DataOwned, Ix2};
 // Crate imports
 use crate::geometry::{dihedral, subtract_arr, RotationMatrix, Coordinate, RotMatrix, LinAlg};
 
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 use crate::inversion::{RIJ,RIJSQ,COSBIJK};
-pub const TWOPI : f32 = 2. * PI; 
+pub const TWOPI : f64 = 2. * PI; 
 pub const Z_SIZE: usize = 6;
-pub const RHO : f32 = 0.67; // radius of the sphere; constant
+pub const RHO : f64 = 0.67; // radius of the sphere; constant
 
 /// the `alpha` dihedrals according to the Strauss-Piccket (SP) pyranose puckering formalism
-/// public `alpha1` field : Vec<f32>
-/// public `alpha2` field : Vec<f32>
-/// public `alpha3` field : Vec<f32>
+/// public `alpha1` field : Vec<f64>
+/// public `alpha2` field : Vec<f64>
+/// public `alpha3` field : Vec<f64>
 #[pyclass(get_all)]
 pub struct Sixring {
-    pub alpha1 : Vec<f32>,
-    pub alpha2 : Vec<f32>,
-    pub alpha3 : Vec<f32>,
+    pub alpha1 : Vec<f64>,
+    pub alpha2 : Vec<f64>,
+    pub alpha3 : Vec<f64>,
 }
 
 #[pymethods]
@@ -28,7 +28,7 @@ impl Sixring {
     pub fn new(amount : usize) -> Self {
         let (sphere_size, corrected_amount) = equidistance_sphere(amount as u16);
 
-        let zj = cremerpople_evelation(&sphere_size, amount);
+        let zj = cremerpople_evelation(&sphere_size, corrected_amount);
 
         let projection = zj.projection_and_partition(corrected_amount);
 
@@ -61,18 +61,18 @@ impl Sixring {
 /// public `theta` field : Array1<f64>. [0, pi] or [0, 180]
 /// public `phi` field : Array1<f64>. [0, 2pi] or [0, 360]
 pub struct SixringAxes {
-    pub rho : f32,
-    pub theta : Array1<f32>,
-    pub phi : Array1<f32>,
+    pub rho : f64,
+    pub theta : Array1<f64>,
+    pub phi : Array1<f64>,
 }
 
 
 impl SixringAxes {
-    pub fn new(m_theta : usize, rho: f32, amount: usize) -> SixringAxes {
+    pub fn new(m_theta : usize, rho: f64, amount: usize) -> SixringAxes {
         SixringAxes {
             rho, // shorthand initialisation
-            theta : Array1::<f32>::zeros(m_theta),
-            phi : Array1::<f32>::zeros(amount),
+            theta : Array1::<f64>::zeros(m_theta),
+            phi : Array1::<f64>::zeros(amount),
         }
     }
 }
@@ -87,30 +87,30 @@ impl SixringAxes {
 ///
 fn equidistance_sphere(amount : u16 ) -> (SixringAxes, usize) {
     // Set a value as surface area / points
-    let corrected_amount: f32 = corrected_amount_of_points(amount as f32);
-    let a: f32 = ( 4. * PI * RHO.powi(2)) / corrected_amount;
+    let corrected_amount: f64 = corrected_amount_of_points(amount as f64);
+    let a: f64 = ( 4. * PI * RHO.powi(2)) / corrected_amount;
 
     let mut idx : u32 = 0; // indexing the arrays
 
     // Set d as the square root of a
-    let d: f32 = a.sqrt();
+    let d: f64 = a.sqrt();
 
     // Round of the ratio between PI and the value of d
-    let m_theta: f32 = (PI / d).round();
+    let m_theta: f64 = (PI / d).round();
 
     // Set d_theta and d_phi
-    let d_theta: f32 = PI / m_theta;
-    let d_phi: f32 = a / d_theta;
+    let d_theta: f64 = PI / m_theta;
+    let d_phi: f64 = a / d_theta;
 
     let amount_sizeof: usize = corrected_amount_to_size_up_arrays(m_theta, d_phi);
     let mut globe = SixringAxes::new(m_theta as usize, RHO, amount_sizeof as usize);
 
     for m in 0..m_theta as u32 {
-        globe.theta[m as usize] = (PI * (m as f32 + 0.5)) / m_theta;
-        let m_phi: f32 = (TWOPI * globe.theta[m as usize].sin() / d_phi).round();
+        globe.theta[m as usize] = (PI * (m as f64 + 0.5)) / m_theta;
+        let m_phi: f64 = (TWOPI * globe.theta[m as usize].sin() / d_phi).round();
 
         for n in 0..m_phi as u32 {
-            globe.phi[idx as usize] = (TWOPI * n as f32) / m_phi;
+            globe.phi[idx as usize] = (TWOPI * n as f64) / m_phi;
             idx += 1;
             
         }
@@ -120,13 +120,13 @@ fn equidistance_sphere(amount : u16 ) -> (SixringAxes, usize) {
 }
 
 
-fn corrected_amount_to_size_up_arrays(m_theta : f32, d_phi : f32) -> usize {
+fn corrected_amount_to_size_up_arrays(m_theta : f64, d_phi : f64) -> usize {
     // Counting the amount of points that are actually generated
     let mut size_array: u32 = 0;
 
     for m in 0..m_theta as u32 {
-        let theta: f32 = (PI * (m as f32 + 0.5)) / m_theta;
-        let m_phi: f32 = (TWOPI * theta.sin() / d_phi).round();
+        let theta: f64 = (PI * (m as f64 + 0.5)) / m_theta;
+        let m_phi: f64 = (TWOPI * theta.sin() / d_phi).round();
         size_array += m_phi as u32;
 
     };
@@ -141,7 +141,7 @@ fn corrected_amount_to_size_up_arrays(m_theta : f32, d_phi : f32) -> usize {
 /// 
 /// What we need is the ratio of the surface are at rho(0.67) and rho(1.00)
 /// --> (0.67^2 * PI * 4) / (1.00^2 * PI * 4) => 0.67^2
-fn corrected_amount_of_points(num : f32) -> f32 {
+fn corrected_amount_of_points(num : f64) -> f64 {
     num * RHO.powi(2)
 }
 
@@ -150,19 +150,19 @@ fn corrected_amount_of_points(num : f32) -> f32 {
 /// Calculate the local elevation z_j for the Cremer-Pople coordinate prompted 
 ///
 ///
-fn cremerpople_evelation(sphere : &SixringAxes, amount: usize) -> Array2<f32> {
+fn cremerpople_evelation(sphere : &SixringAxes, amount: usize) -> Array2<f64> {
     // spherical coordinates are by default in radians
 
     // 6 atomic elevations (Z_j) for any set of (r, theta, phi)
-    let mut z: Array2<f32> = Array2::zeros((amount, Z_SIZE));
+    let mut z: Array2<f64> = Array2::zeros((amount, Z_SIZE));
 
     // Set two constant values
     let constant1 = [0.,1.,2.,3.,4.,5.].map(|j| ((TWOPI * j) / 3.));
-    let constant2 = [0, 1, 2, 3, 4, 5].map(|j| (-1_f32).powi(j));
+    let constant2 = [0, 1, 2, 3, 4, 5].map(|j| (-1_f64).powi(j));
 
     // Set some more constant values
-    let one_over_sqrt_three: f32 = 3_f32.sqrt() ;
-    let one_over_sqrt_six: f32 = 6_f32.sqrt() ;
+    let one_over_sqrt_three: f64 = 3_f64.sqrt() ;
+    let one_over_sqrt_six: f64 = 6_f64.sqrt() ;
 
     let mut idx_theta: usize = 0;
     for i in 0..amount { 
@@ -188,8 +188,8 @@ fn cremerpople_evelation(sphere : &SixringAxes, amount: usize) -> Array2<f32> {
 /// In actually : 
 /// Theta (Spherical Coordinate) => Phi_2 (Cremer-Pople)
 /// Phi   (Spherical Coordinate) => Theta (Cremer-Pople)
-fn calculate_local_elevation(rho : f32, theta: f32, phi: f32, c1 : f32,  c2 : f32,
-                             onethree: f32, onesix: f32) -> f32 {
+fn calculate_local_elevation(rho : f64, theta: f64, phi: f64, c1 : f64,  c2 : f64,
+                             onethree: f64, onesix: f64) -> f64 {
     
     let term1 = (theta.sin() * (phi + c1).cos()) / onethree; // first term of the equation
     let term2 = (theta.cos() * c2) / onesix ; // second term of the equation
@@ -203,12 +203,12 @@ fn calculate_local_elevation(rho : f32, theta: f32, phi: f32, c1 : f32,  c2 : f3
 ///
 ///
 pub struct ProjectionPartition {
-    pub rpij : Array2::<f32>,
-    pub cosbpijk : Array2::<f32>,
-    pub sinbpijk : Array2::<f32>,
-    pub op : Array1::<f32>,
-    pub qp : Array1::<f32>,
-    pub oq : Array1::<f32>,
+    pub rpij : Array2::<f64>,
+    pub cosbpijk : Array2::<f64>,
+    pub sinbpijk : Array2::<f64>,
+    pub op : Array1::<f64>,
+    pub qp : Array1::<f64>,
+    pub oq : Array1::<f64>,
 
 }
 // Make a trait where we can implement our own function on the ArrayBase<S,D> struct.
@@ -219,20 +219,20 @@ pub trait RingPartition {
 
 impl<S> RingPartition for ArrayBase<S, Ix2>
 where 
-    S : DataOwned<Elem = f32>, // Instead of having A as a generic type
-                               // we just need A to be f32 types
+    S : DataOwned<Elem = f64>, // Instead of having A as a generic type
+                               // we just need A to be f64 types
                                // So we just prompt it in, since we won't use the function for
                                // other type floats or integers
 {
     /// The `self` parameter is actually the local_elevation matrix (z_j)
     fn projection_and_partition(&self, sphere_size : usize) -> ProjectionPartition {
 
-        let mut rpij_arr = Array2::<f32>::zeros((sphere_size as usize, Z_SIZE));
-        let mut cospb_arr = Array2::<f32>::zeros((sphere_size as usize, Z_SIZE));
-        let mut sinpb_arr = Array2::<f32>::zeros((sphere_size as usize, Z_SIZE));
-        let mut op_arr = Array1::<f32>::zeros(sphere_size as usize);
-        let mut qp_arr = Array1::<f32>::zeros(sphere_size as usize);
-        let mut oq_arr = Array1::<f32>::zeros(sphere_size as usize);
+        let mut rpij_arr = Array2::<f64>::zeros((sphere_size as usize, Z_SIZE));
+        let mut cospb_arr = Array2::<f64>::zeros((sphere_size as usize, Z_SIZE));
+        let mut sinpb_arr = Array2::<f64>::zeros((sphere_size as usize, Z_SIZE));
+        let mut op_arr = Array1::<f64>::zeros(sphere_size as usize);
+        let mut qp_arr = Array1::<f64>::zeros(sphere_size as usize);
+        let mut oq_arr = Array1::<f64>::zeros(sphere_size as usize);
 
         for i in 0..sphere_size as usize {
             
@@ -322,7 +322,7 @@ impl SixRingAtoms {
 
 /// Return a Vec of all the conformers' atoms' position in cartesian coordinates
 /// Then we will derive all the alpha angles (the improper dihedrals) in a next function
-pub fn reconstruct_coordinates(proj : ProjectionPartition, sphere_size : usize, z_j : Array2<f32>) -> Vec<SixRingAtoms> {
+pub fn reconstruct_coordinates(proj : ProjectionPartition, sphere_size : usize, z_j : Array2<f64>) -> Vec<SixRingAtoms> {
     // proj : projections and partitioning. 
 
     let mut pyranosecoordinates = Vec::with_capacity(sphere_size);

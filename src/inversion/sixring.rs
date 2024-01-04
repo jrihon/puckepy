@@ -1,12 +1,12 @@
 use pyo3::pyfunction;
 use crate::geometry::{LinAlg, Coordinate, RotMatrix, RotationMatrix, subtract_arr};
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;
 use crate::inversion::{RIJ, RIJSQ, COSBIJK};
 
 #[pyfunction]
-pub fn invert_sixring(rho: f32, phi2: f32, theta: f32) -> [[f32; 3]; 6] {
+pub fn invert_sixring(rho: f64, phi2: f64, theta: f64) -> [[f64; 3]; 6] {
 
     let zj = local_elevation(rho, phi2, theta);
 
@@ -28,16 +28,16 @@ pub fn invert_sixring(rho: f32, phi2: f32, theta: f32) -> [[f32; 3]; 6] {
 
 
 
-fn local_elevation(rho : f32, phi2: f32, theta: f32) -> [f32;6] {
+fn local_elevation(rho : f64, phi2: f64, theta: f64) -> [f64;6] {
     
     let phi2 = phi2.to_radians();
     let theta = theta.to_radians();
     // Calculate local elevation
     let constant1 = [0.,1.,2.,3.,4.,5.].map(|j| ((TWOPI * j) / 3.));
-    let constant2 = [0,1,2,3,4,5].map(|j| (-1_f32).powi(j));
+    let constant2 = [0,1,2,3,4,5].map(|j| (-1_f64).powi(j));
 
-    let one_over_sqrt_three: f32 = 3_f32.sqrt() ;
-    let one_over_sqrt_six: f32 = 6_f32.sqrt() ;
+    let one_over_sqrt_three: f64 = 3_f64.sqrt() ;
+    let one_over_sqrt_six: f64 = 6_f64.sqrt() ;
 
     // iterate over the two arrays of constants
     constant1.iter().zip(constant2.iter()).map(|(one, two)| {
@@ -46,28 +46,28 @@ fn local_elevation(rho : f32, phi2: f32, theta: f32) -> [f32;6] {
     let term2 = (theta.cos() * two) / one_over_sqrt_six ; // second term of the equation
     (term1 + term2) * rho // multiply by rho, which was pushed out by both terms to the outside of the equation
 
-    }).collect::<Vec<f32>>()
-      .try_into().unwrap() // we are certain that it will collect into a [f32;6] as both arrays
+    }).collect::<Vec<f64>>()
+      .try_into().unwrap() // we are certain that it will collect into a [f64;6] as both arrays
                            // are of the same size. This function is not available as public
 
 }
 
 // Store ring partitioning in the struct
 pub struct ProjectionPartition {
-    pub rpij : [f32;6],
-    pub cosbpijk : [f32;6],
-    pub sinbpijk : [f32;6],
-    pub op : f32,
-    pub qp : f32,
-    pub oq : f32,
+    pub rpij : [f64;6],
+    pub cosbpijk : [f64;6],
+    pub sinbpijk : [f64;6],
+    pub op : f64,
+    pub qp : f64,
+    pub oq : f64,
 
 }
 
-fn projection_and_partition(zj: &[f32;6]) -> ProjectionPartition {
+fn projection_and_partition(zj: &[f64;6]) -> ProjectionPartition {
 
-    let mut rpij_arr: [f32;6] = [0.;6];
-    let mut cospb_arr: [f32;6] =  [0.;6];
-    let mut sinpb_arr: [f32;6] = [0.;6];
+    let mut rpij_arr: [f64;6] = [0.;6];
+    let mut cospb_arr: [f64;6] =  [0.;6];
+    let mut sinpb_arr: [f64;6] = [0.;6];
 
     for j in 0..6 {
         rpij_arr[j] = ( RIJSQ - 
@@ -91,9 +91,9 @@ fn projection_and_partition(zj: &[f32;6]) -> ProjectionPartition {
         
     };
 
-    let op: f32 = (( rpij_arr[0].powi(2) + rpij_arr[1].powi(2) ) - (2. * rpij_arr[0] * rpij_arr[1] * cospb_arr[0])).sqrt();
-    let qp: f32 = (( rpij_arr[2].powi(2) + rpij_arr[3].powi(2) ) - (2. * rpij_arr[2] * rpij_arr[3] * cospb_arr[2])).sqrt();
-    let oq: f32 = (( rpij_arr[4].powi(2) + rpij_arr[5].powi(2) ) - (2. * rpij_arr[4] * rpij_arr[5] * cospb_arr[4])).sqrt();
+    let op: f64 = (( rpij_arr[0].powi(2) + rpij_arr[1].powi(2) ) - (2. * rpij_arr[0] * rpij_arr[1] * cospb_arr[0])).sqrt();
+    let qp: f64 = (( rpij_arr[2].powi(2) + rpij_arr[3].powi(2) ) - (2. * rpij_arr[2] * rpij_arr[3] * cospb_arr[2])).sqrt();
+    let oq: f64 = (( rpij_arr[4].powi(2) + rpij_arr[5].powi(2) ) - (2. * rpij_arr[4] * rpij_arr[5] * cospb_arr[4])).sqrt();
 
 
     ProjectionPartition { 
@@ -142,7 +142,7 @@ struct PointPositions {
     s31 : Coordinate,
 }
 
-pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f32;6]) -> SixRingAtoms {
+pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f64;6]) -> SixRingAtoms {
     // proj : projections and partitioning. 
 
     // Add the local evelation already as the z-coordinate to the final molecule's array

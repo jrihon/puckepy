@@ -6,25 +6,32 @@ pub mod cremerpople;
 pub mod altonasund;
 
 mod search_atomname;
-use self::search_atomname::FindString;
+use self::search_atomname::FindString; // Find name of &str 'String'.at_position()
 
-//enum System {
-//    Fivering,
-//    Sixring
-//}
+pub enum MemberedRing {
+    Five(CP5),
+    Six(CP6)
+}
 
 /// The CP tuple-struct holds the (amplitude, phase_angle) parameters
 #[pyclass(get_all)]
-pub struct CP {
-    pub amplitude: f32,
-    pub phase_angle: f32,
+pub struct CP5 {
+    pub amplitude: f64,
+    pub phase_angle: f64,
+}
+
+#[pyclass(get_all)]
+pub struct CP6 {
+    pub amplitude: f64,
+    pub phase_angle: f64,
+    pub theta: f64,
 }
 
 #[pymethods]
-impl CP {
+impl CP5 {
 
     #[new]
-    fn new(amplitude: f32, phase_angle: f32) -> CP {
+    fn new(amplitude: f64, phase_angle: f64) -> CP5 {
         if amplitude > 1. {
             panic!("amplitude value is larger than 1.")
         }
@@ -33,7 +40,39 @@ impl CP {
             panic!("phase_angle value should be within the range of 0 -> 360")
         }
 
-        CP { amplitude, phase_angle }
+        CP5 { amplitude, phase_angle }
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn cp_from_indices(&self, pdb : &Pdb, indices: Vec<usize>) -> CP5 {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(pdb.coordinates[idx])
+        }
+
+       match cremerpople::cremer_pople(&mut molarray) {
+           MemberedRing::Five(a) => a,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+       }
+    }
+    
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn cp_from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> CP5 {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.cp_from_indices(pdb, indices)
     }
 
     fn to_as(&self) -> AS {
@@ -54,18 +93,73 @@ impl CP {
 }
 
 
+#[pymethods]
+impl CP6 {
+
+    #[new]
+    fn new(amplitude: f64, phase_angle: f64, theta: f64) -> CP6 {
+        if amplitude > 1. {
+            panic!("amplitude value is larger than 1.")
+        }
+
+        if !(0.0..=360.0).contains(&phase_angle) {
+            panic!("phase_angle value should be within the range of 0 -> 360")
+        }
+
+        if !(0.0..=180.0).contains(&theta) {
+            panic!("theta value should be within the range of 0 -> 180")
+        }
+
+        CP6 { amplitude, phase_angle, theta }
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn cp_from_indices(&self, pdb : &Pdb, indices: Vec<usize>) -> CP6 {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(pdb.coordinates[idx])
+        }
+
+       match cremerpople::cremer_pople(&mut molarray) {
+           MemberedRing::Six(a) => a,
+           _ => panic!("An amount, not equal to 6, has been queried. Expected 6 elements.")
+       }
+    }
+    
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn cp_from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> CP6 {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.cp_from_indices(pdb, indices)
+    }
+
+}
+
+
 /// The AS tuple-struct holds the (amplitude, phase_angle) parameters
 #[pyclass(get_all)]
 pub struct AS {
-    pub amplitude: f32,
-    pub phase_angle: f32,
+    pub amplitude: f64,
+    pub phase_angle: f64,
 }
 
 #[pymethods]
 impl AS {
 
     #[new]
-    fn new(amplitude: f32, phase_angle: f32) -> AS {
+    fn new(amplitude: f64, phase_angle: f64) -> AS {
         if amplitude > 1. {
             panic!("amplitude value is larger than 1.")
         }
@@ -76,7 +170,37 @@ impl AS {
         AS { amplitude, phase_angle }
     }
     
-    fn to_cp(&self) -> CP {
+    // Calculate Altona Sundaralingam formalism by the indices
+    fn as_from_indices(&self, pdb: &Pdb, indices: Vec<usize>) -> AS {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(pdb.coordinates[idx])
+        }
+
+        altonasund::altona_sundaralingam(&molarray)
+    }
+    
+    // Find the indices of the atomnames and pass them to self.as_from_indices()
+    fn as_from_atomnames(&self, pdb: &Pdb, query_names: Vec<String>) -> AS {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        // Call cp_from_indices
+        self.as_from_indices(pdb, indices)
+    }
+
+    fn to_cp(&self) -> CP5 {
         // let mut phase_angle = self.1 + 90.;
         // if phase_angle > 360. { 
         //     phase_angle -= 360.
@@ -87,7 +211,7 @@ impl AS {
         // This cuts out an operation or two down the line
         let new_angle = if self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. };
 
-        CP::new(self.amplitude, new_angle)
+        CP5::new(self.amplitude, new_angle)
 
     }
 }
@@ -98,11 +222,11 @@ impl AS {
 
 /// The only thing we need from the pdb is 
 /// Atom names Vec<String>
-/// Coordinates, best to do as Vec<[f32;3]>
+/// Coordinates, best to do as Vec<[f64;3]>
 #[pyclass(get_all)]
 pub struct Pdb {
-    pub atom_names: Vec<String>,
-    pub coordinates: Vec<[f32;3]>
+    pub atomnames: Vec<String>,
+    pub coordinates: Vec<[f64;3]>
 }
 /// Parses an pdb-file format
 /// This means a format that looks like this
@@ -138,22 +262,22 @@ impl Pdb {
 
         let pdblines = file.lines().map(|s| s.into()).collect::<Vec<String>>();
 
-        let mut atom_names: Vec<String> = vec![];
-        let mut coordinates: Vec<[f32;3]> = vec![];
+        let mut atomnames: Vec<String> = vec![];
+        let mut coordinates: Vec<[f64;3]> = vec![];
 
-        for l in pdblines.iter() {
-            if l.starts_with("ATOM") { 
-                atom_names.push(l[12..16].trim().into());
+        for lines in pdblines.iter() {
+            if lines.starts_with("ATOM") { 
+                atomnames.push(lines[12..16].trim().into());
 
-                let x = match l[31..39].trim().parse::<f32>() {
+                let x = match lines[31..39].trim().parse::<f64>() {
                     Ok(a) => a,
                     Err(e) => panic!("{}", e)
                 };
-                let y = match l[39..47].trim().parse::<f32>() {
+                let y = match lines[39..47].trim().parse::<f64>() {
                     Ok(a) => a,
                     Err(e) => panic!("{}", e)
                 };
-                let z = match l[47..55].trim().parse::<f32>() {
+                let z = match lines[47..55].trim().parse::<f64>() {
                     Ok(a) => a,
                     Err(e) => panic!("{}", e)
                 };
@@ -163,78 +287,78 @@ impl Pdb {
         }
         
         Ok(Pdb {
-            atom_names,
+            atomnames,
             coordinates
         })
     }
 
 
-    // Calculate Cremer-Pople formalism by prompted indices
-    fn cp_from_indices(&self, indices: Vec<usize>) -> CP {
-        
-        let mut molarray: Vec<[f32; 3]> = vec![];
-
-        for idx in indices {
-            molarray.push(self.coordinates[idx])
-        }
-
-        cremerpople::cremer_pople(&mut molarray)
-    }
-    
-    // Find indices of atomnames and pass them to self.cp_from_indices()
-    fn cp_from_atomnames(&self, query_names: Vec<String>) -> CP {
-
-        // Make empty vec :
-        let mut indices: Vec<usize> = Vec::with_capacity(6);
-
-        // Search for the indices of the atom names
-        for name in query_names.iter() {
-            match self.atom_names.at_position(name) {
-                Ok(a) => indices.push(a),
-                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
-            }
-        }
-
-        self.cp_from_indices(indices)
-    }
-
-    // Calculate Altona Sundaralingam formalism by the indices
-    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
-        
-        let mut molarray: Vec<[f32; 3]> = vec![];
-
-        for idx in indices {
-            molarray.push(self.coordinates[idx])
-        }
-
-        altonasund::altona_sundaralingam(&molarray)
-    }
-    
-    // Find the indices of the atomnames and pass them to self.as_from_indices()
-    fn as_from_atomnames(&self, query_names: Vec<String>) -> AS {
-
-        // Make empty vec :
-        let mut indices: Vec<usize> = Vec::with_capacity(6);
-
-        // Search for the indices of the atom names
-        for name in query_names.iter() {
-            match self.atom_names.at_position(name) {
-                Ok(a) => indices.push(a),
-                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
-            }
-        }
-
-        // Call cp_from_indices
-        self.as_from_indices(indices)
-    }
+//    // Calculate Cremer-Pople formalism by prompted indices
+//    fn cp_from_indices(&self, indices: Vec<usize>) -> MemberedRing {
+//        
+//        let mut molarray: Vec<[f64; 3]> = vec![];
+//
+//        for idx in indices {
+//            molarray.push(self.coordinates[idx])
+//        }
+//
+//       cremerpople::cremer_pople(&mut molarray)
+//    }
+//    
+//    // Find indices of atomnames and pass them to self.cp_from_indices()
+//    fn cp_from_atomnames(&self, query_names: Vec<String>) -> MemberedRing {
+//
+//        // Make empty vec :
+//        let mut indices: Vec<usize> = Vec::with_capacity(6);
+//
+//        // Search for the indices of the atom names
+//        for name in query_names.iter() {
+//            match self.atomnames.at_position(name) {
+//                Ok(a) => indices.push(a),
+//                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+//            }
+//        }
+//
+//        self.cp_from_indices(indices)
+//    }
+//
+//    // Calculate Altona Sundaralingam formalism by the indices
+//    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
+//        
+//        let mut molarray: Vec<[f64; 3]> = vec![];
+//
+//        for idx in indices {
+//            molarray.push(self.coordinates[idx])
+//        }
+//
+//        altonasund::altona_sundaralingam(&molarray)
+//    }
+//    
+//    // Find the indices of the atomnames and pass them to self.as_from_indices()
+//    fn as_from_atomnames(&self, query_names: Vec<String>) -> AS {
+//
+//        // Make empty vec :
+//        let mut indices: Vec<usize> = Vec::with_capacity(6);
+//
+//        // Search for the indices of the atom names
+//        for name in query_names.iter() {
+//            match self.atomnames.at_position(name) {
+//                Ok(a) => indices.push(a),
+//                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+//            }
+//        }
+//
+//        // Call cp_from_indices
+//        self.as_from_indices(indices)
+//    }
 }
 
 
 /// The only thing we need from the xyz is 
-/// Coordinates, best to do as Vec<[f32;3]>
+/// Coordinates, best to do as Vec<[f64;3]>
 #[pyclass(get_all)]
 pub struct Xyz {
-    pub coordinates: Vec<[f32;3]>
+    pub coordinates: Vec<[f64;3]>
 }
 
 /// Parses an xyz-file format
@@ -267,7 +391,7 @@ impl Xyz {
             panic!("The file {} is empty.", &fname)
         }
 
-        let mut coordinates: Vec<[f32;3]> = vec![];
+        let mut coordinates: Vec<[f64;3]> = vec![];
         let xyz_lines = file.lines().map(|s| s.into()).collect::<Vec<String>>();
         let mut xyz_iter = xyz_lines.iter();
 
@@ -277,21 +401,21 @@ impl Xyz {
         let _ = &xyz_iter.next();
 
         for l in xyz_iter {
-            let spl: Vec<&str> = l.split_whitespace().collect();
+            let splits: Vec<&str> = l.split_whitespace().collect();
 
-            if spl.len() != 4 {
+            if splits.len() != 4 {
                 continue
             };
 
-            let x = match spl[1].parse::<f32>() {
+            let x = match splits[1].parse::<f64>() {
                 Ok(a) => a,
                 Err(e) => panic!("{}", e)
             };
-            let y = match spl[2].trim().parse::<f32>() {
+            let y = match splits[2].trim().parse::<f64>() {
                 Ok(a) => a,
                 Err(e) => panic!("{}", e)
             };
-            let z = match spl[3].trim().parse::<f32>() {
+            let z = match splits[3].trim().parse::<f64>() {
                 Ok(a) => a,
                 Err(e) => panic!("{}", e)
             };
@@ -302,15 +426,28 @@ impl Xyz {
         Ok(Xyz { coordinates})
     }
 
-    fn cp_from_indices(&self, indices: Vec<usize>) -> AS {
-        
-        let mut molarray = vec![];
-
-        for idx in indices {
-            molarray.push(self.coordinates[idx])
-        };
-
-        altonasund::altona_sundaralingam(&molarray)
-    }
+//    // Cremer Pople for indices
+//    fn cp_from_indices(&self, indices: Vec<usize>) -> MemberedRing {
+//        
+//        let mut molarray = vec![];
+//
+//        for idx in indices {
+//            molarray.push(self.coordinates[idx])
+//        };
+//
+//        cremerpople::cremer_pople(&mut molarray)
+//    }
+//
+//    // Altona Sundaralingam for indices
+//    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
+//        
+//        let mut molarray = vec![];
+//
+//        for idx in indices {
+//            molarray.push(self.coordinates[idx])
+//        };
+//
+//        altonasund::altona_sundaralingam(&mut molarray)
+//    }
     
 }

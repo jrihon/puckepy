@@ -3,3 +3,9 @@
 /pythontests
 /pyrightconfig.json
 /puckepy/puckepy.abi3.so
+/puckepy/__pycache__/
+/puckepy/confsampling/__pycache__/
+/puckepy/inversion/__pycache__/
+/puckepy/formalism/__pycache__/
+/puckepy/geometry/__pycache__/
+/renamed_stubs

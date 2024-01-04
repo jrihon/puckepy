@@ -12,7 +12,7 @@ use conf_sampling::{
 };
 
 use formalism::{
-    CP, AS, Pdb, Xyz
+    CP5, CP6, AS, Pdb, Xyz
 };
 
 use inversion::{
@@ -47,7 +47,8 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
 
     // Add formalism module
     let form_module = PyModule::new(py, "formalism")?;
-    form_module.add_class::<CP>()?;
+    form_module.add_class::<CP5>()?;
+    form_module.add_class::<CP6>()?;
     form_module.add_class::<AS>()?;
     form_module.add_class::<Pdb>()?;
     form_module.add_class::<Xyz>()?;

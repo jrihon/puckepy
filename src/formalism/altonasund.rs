@@ -4,8 +4,7 @@ use crate::formalism::AS;
 
 
 
-// Redo these, because it is not making sense. Sin(72°) is most definitely not 0.95
-const PIOVERFIVE: f32 = 0.628318530718;
+const PIOVERFIVE: f64 = 0.628318530718;
 
 
 /// (b) For abbreviated nomenclature see M. Sundaralingam, J. A". Chem. SOC.,93, 6644 (1971). and references therein.
@@ -23,7 +22,7 @@ const PIOVERFIVE: f32 = 0.628318530718;
 // theta1 = nu4
 // Here, we will assume that we start from O4' -> C1' -> C2' -> C3' -> C4', like CP
 //     While AS assumes C2' -> C3' -> C4' -> O4' -> C1'  
-pub fn altona_sundaralingam(coordinates: &Vec<[f32;3]>) -> AS {
+pub fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> AS {
     
     let theta2 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
     let theta3 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
@@ -46,6 +45,9 @@ pub fn altona_sundaralingam(coordinates: &Vec<[f32;3]>) -> AS {
     let amplitude = (a.powi(2) + b.powi(2)).sqrt();
     let mut phase_angle = 0.0;
 
+    // if the amplitude is roughly equal to 0.0 , then that means that the conformer has all 
+    // five atoms in the same plane. This makes the phase_angle undefined and therefore we 
+    // equate it to 0.0
     if amplitude > 0.0 || amplitude < 0.0 {
         phase_angle = b.atan2(a)
     }

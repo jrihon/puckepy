@@ -1,8 +1,8 @@
 use pyo3::{pyclass, pymethods};
 use ndarray::Array1; // not public, useful for the linspace function
 
-const FOURPIOVERFIVE : f32 = (4. * PI) / 5.;
-use std::f32::consts::PI;
+const FOURPIOVERFIVE : f64 = (4. * PI) / 5.;
+use std::f64::consts::PI;
 
 
 
@@ -10,8 +10,8 @@ use std::f32::consts::PI;
 /// Struct to keep the nu_1 and nu_3 generated dihedrals
 #[pyclass(get_all)]
 pub struct Fivering {
-    pub nu1: Vec<f32>,
-    pub nu3: Vec<f32>,
+    pub nu1: Vec<f64>,
+    pub nu3: Vec<f64>,
 }
 
 #[pymethods]
@@ -26,23 +26,23 @@ impl Fivering {
 
         // Setup variable
         let amount : u16 = num * num;
-        let num_f32 : f32 = num as f32;
+        let num_f64 : f64 = num as f64;
 
         // Initialise equation-specific constants
-        let denominator_x : f32 = FOURPIOVERFIVE.cos();
-        let denominator_y : f32 = FOURPIOVERFIVE.sin();
+        let denominator_x : f64 = FOURPIOVERFIVE.cos();
+        let denominator_y : f64 = FOURPIOVERFIVE.sin();
 
         // Instance Fivering struct
-        let mut nu1: Vec<f32> = Vec::with_capacity(amount as usize);
-        let mut nu3: Vec<f32> = Vec::with_capacity(amount as usize);
+        let mut nu1: Vec<f64> = Vec::with_capacity(amount as usize);
+        let mut nu3: Vec<f64> = Vec::with_capacity(amount as usize);
 
-        let mut x : f32;
-        let mut y : f32;
+        let mut x : f64;
+        let mut y : f64;
 
         for i in 0..amount as usize {
             // Calculate indexes for the array axises
-            x = (i as f32 / num_f32).floor(); // X axis, returns with floor
-            y = i as f32 % num_f32; // Y axis, return with modulo
+            x = (i as f64 / num_f64).floor(); // X axis, returns with floor
+            y = i as f64 % num_f64; // Y axis, return with modulo
 
             // fill out the array
             nu1.push((polars.zx[x as usize] * denominator_x ) + ( polars.zy[y as usize] * denominator_y));
@@ -60,8 +60,8 @@ impl Fivering {
 
 #[pyclass(get_all)]
 pub struct FiveringAxes {
-    zx : Vec<f32>,
-    zy : Vec<f32>,
+    zx : Vec<f64>,
+    zy : Vec<f64>,
 
 }
 

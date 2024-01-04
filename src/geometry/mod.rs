@@ -3,12 +3,12 @@
 ///
 
 use crate::pyfunction;
-use std::f32::consts::PI;
+use std::f64::consts::PI;
 
 /// 3D coordinates-types and -matrices from primitives
-pub type Coordinate = [f32; 3];
-pub type DirectionAxis = [f32; 3];
-pub type RotationMatrix = [[f32; 3]; 3];
+pub type Coordinate = [f64; 3];
+pub type DirectionAxis = [f64; 3];
+pub type RotationMatrix = [[f64; 3]; 3];
 
 
 
@@ -29,13 +29,13 @@ pub fn testing_submodule(a: i32) -> i32 {
 ///
 /// Implement standard linear algebra on the Coordinate types
 pub trait LinAlg {
-    fn dot_product(&self, rhs : &Coordinate) -> f32;
+    fn dot_product(&self, rhs : &Coordinate) -> f64;
     fn cross_product(&self, rhs : &Coordinate) -> DirectionAxis;
     fn subtract_arr(&self, rhs : &Coordinate) -> Coordinate;
     fn add_arr(&self, rhs : &Coordinate) -> Coordinate;
     fn normalise_vector(&self) -> Coordinate;
-    fn norm(&self) -> f32;
-    fn scale_vector(&self, factor: f32) -> Coordinate;
+    fn norm(&self) -> f64;
+    fn scale_vector(&self, factor: f64) -> Coordinate;
 
 }
 
@@ -43,7 +43,7 @@ pub trait LinAlg {
 impl LinAlg for Coordinate {
 
     /// Calculate the scalar product between two vectors
-    fn dot_product(&self, rhs : &Coordinate) -> f32 {
+    fn dot_product(&self, rhs : &Coordinate) -> f64 {
       (self[0] * rhs[0]) + (self[1] * rhs[1]) + (self[2] * rhs[2])
     }
 
@@ -70,26 +70,26 @@ impl LinAlg for Coordinate {
 
     /// -> sqrt(x² + y² + z²)
     /// This gives the length of the vector
-    fn norm(&self) -> f32 {
-        self.map(|x: f32| x.powi(2))
+    fn norm(&self) -> f64 {
+        self.map(|x: f64| x.powi(2))
             .into_iter()
-            .sum::<f32>()
+            .sum::<f64>()
             .sqrt()
     }
 
     /// Normalise the size of the Coordinate
     /// ```
     /// let d = 1. / self.norm(); 
-    /// self.map(|x: f32| d * x) // apply the factor `d` to all elements of the coordinate
+    /// self.map(|x: f64| d * x) // apply the factor `d` to all elements of the coordinate
     /// ```
     fn normalise_vector(&self) -> Coordinate {
        let d = 1. / self.norm(); 
 
-       self.map(|x: f32| d * x) // apply the factor `d` to all elements of the coordinate
+       self.map(|x: f64| d * x) // apply the factor `d` to all elements of the coordinate
     }
 
     /// Scale the vector by a certain factor
-    fn scale_vector(&self, factor: f32) -> Coordinate {
+    fn scale_vector(&self, factor: f64) -> Coordinate {
         self.map(|x| x * factor)
     }
 
@@ -108,7 +108,7 @@ impl LinAlg for Coordinate {
 ///
 /// Provide standard linear algebra operations also as
 /// standalone function
-pub fn dot_product(a : Coordinate, b : Coordinate) -> f32 {
+pub fn dot_product(a : Coordinate, b : Coordinate) -> f64 {
     (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2])
 
 }
@@ -127,10 +127,10 @@ pub fn cross_product(a : Coordinate, b : Coordinate) -> DirectionAxis {
 /// -> sqrt(x² + y² + z²)
 /// This gives the length of the vector
 #[allow(dead_code)]
-fn norm(c : &Coordinate) -> f32 {
-    c.map(|x: f32| x.powi(2))
+fn norm(c : &Coordinate) -> f64 {
+    c.map(|x: f64| x.powi(2))
         .into_iter()
-        .sum::<f32>()
+        .sum::<f64>()
         .sqrt()
 }
 
@@ -139,7 +139,7 @@ fn norm(c : &Coordinate) -> f32 {
 pub fn normalise_vector(c : Coordinate) -> Coordinate {
     let d = 1. / norm(&c); 
 
-    c.map(|x: f32| d * x) // apply the factor `d` to all elements of the coordinate
+    c.map(|x: f64| d * x) // apply the factor `d` to all elements of the coordinate
 }
 
 /// Since we can't perform operator overloading on primitive types (because we do not own them, see Rust's Orphan Rule)
@@ -170,7 +170,7 @@ pub fn subtract_arr(a : Coordinate, b : Coordinate) -> Coordinate {
 /// That is why it remains as a standalone public function
 ///
 #[allow(dead_code)]
-pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordinate) -> f32 {
+pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordinate) -> f64 {
     let b0 = p0.subtract_arr(&p1);
     let b1 = p2.subtract_arr(&p1).normalise_vector(); // do not let magnitude affect subsequent operations
     let b2 = p3.subtract_arr(&p2);
@@ -202,15 +202,15 @@ pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordina
 /// Custom trait to extend primitive type :
 /// Make extension trait on the primitive type `RotationMatrix`
 pub trait RotMatrix {
-    fn new(phi: f32) -> RotationMatrix; 
+    fn new(phi: f64) -> RotationMatrix; 
     fn apply_rotation(&self, p : Coordinate) -> Coordinate; 
-    fn apply_rotation_around_g(&self, p : Coordinate, idx: usize) -> f32; 
+    fn apply_rotation_around_g(&self, p : Coordinate, idx: usize) -> f64; 
 }
 
 impl RotMatrix for RotationMatrix {
 
     /// make a RotationMatrix out of an angle `phi`
-    fn new(phi: f32) -> RotationMatrix {
+    fn new(phi: f64) -> RotationMatrix {
 
         [ [ phi.cos(), -phi.sin(), 0., ],   // rotation around i-hat (x-axis)
           [ phi.sin(),  phi.cos(), 0., ],   // rotation around j-hat (y-axis)
@@ -230,7 +230,7 @@ impl RotMatrix for RotationMatrix {
     }
 
     /// apply a Rotation to a Coordinate, with a specified axis of the RotationMatrix
-    fn apply_rotation_around_g(&self, p : Coordinate, idx: usize) -> f32 {
+    fn apply_rotation_around_g(&self, p : Coordinate, idx: usize) -> f64 {
             (self[idx][0] * p[0]) + (self[idx][1] * p[1]) + (self[idx][2] * p[2])
         }
 }
@@ -283,7 +283,7 @@ mod test_linalg {
         let b = [4., 5., 6.];
 
         let c = subtract_arr(b, a);
-        assert_float_absolute_eq!(c.iter().sum::<f32>(), [3., 3., 3.,].iter().sum::<f32>(), 0.001)
+        assert_float_absolute_eq!(c.iter().sum::<f64>(), [3., 3., 3.,].iter().sum::<f64>(), 0.001)
 
     }
 

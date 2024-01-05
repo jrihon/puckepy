@@ -44,12 +44,12 @@ impl CP5 {
     }
 
     // Calculate Cremer-Pople formalism by prompted indices
-    fn cp_from_indices(&self, pdb : &Pdb, indices: Vec<usize>) -> CP5 {
+    fn cp_from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> CP5 {
         
         let mut molarray: Vec<[f64; 3]> = vec![];
 
         for idx in indices {
-            molarray.push(pdb.coordinates[idx])
+            molarray.push(coordinates[idx])
         }
 
        match cremerpople::cremer_pople(&mut molarray) {
@@ -72,7 +72,7 @@ impl CP5 {
             }
         }
 
-        self.cp_from_indices(pdb, indices)
+        self.cp_from_indices(pdb.coordinates.clone(), indices)
     }
 
     fn to_as(&self) -> AS {
@@ -114,12 +114,12 @@ impl CP6 {
     }
 
     // Calculate Cremer-Pople formalism by prompted indices
-    fn cp_from_indices(&self, pdb : &Pdb, indices: Vec<usize>) -> CP6 {
+    fn cp_from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> CP6 {
         
         let mut molarray: Vec<[f64; 3]> = vec![];
 
         for idx in indices {
-            molarray.push(pdb.coordinates[idx])
+            molarray.push(coordinates[idx])
         }
 
        match cremerpople::cremer_pople(&mut molarray) {
@@ -142,7 +142,7 @@ impl CP6 {
             }
         }
 
-        self.cp_from_indices(pdb, indices)
+        self.cp_from_indices(pdb.coordinates.clone(), indices)
     }
 
 }

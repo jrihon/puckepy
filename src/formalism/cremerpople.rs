@@ -72,82 +72,51 @@ fn local_elevation(molarray : &Vec<[f64;3]>, mol_axis: [f64;3]) -> Vec<f64> {
 }
 
 // Calculate the Cremer Pople Coordinates based on the local elevation
-#[allow(unused_variables)]
 fn return_cp_coordinates(zj : Vec<f64>) -> MemberedRing { 
 
     // constant values for the calculations 
     let size = zj.len();
     let cos_uv2: Vec<f64> = (0..size).map(|i| ((4. * PI * i as f64) / size as f64).cos() ).collect();     // cos(2pi * m * i / 5) (Eq. 12)
     let sin_uv2: Vec<f64> = (0..size).map(|i| ((4. * PI * i as f64) / size as f64).sin() ).collect();     // sin(2pi * m * i / 5) (Eq. 12)
-//    let cos_uv2 = [0., 1., 2., 3., 4.].map(|i| ((4. * PI * i) / size ).cos() );     // cos(2pi * m * i / 5) (Eq. 12)
-//    let sin_uv2 = [0., 1., 2., 3., 4.].map(|i| ((4. * PI * i) / size ).sin() );     // sin(2pi * m * i / 5) (Eq. 13)
     const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;              // taken from
                                                                                     // <f64>.to_degrees()
                                                                                     //     for i in range(NUM):
 
-    let sqrt_cst = (2_f64/ size as f64).sqrt();                                            // sqrt(2/5) -- sqrt(2/6)
-
+    // We are not using multiplying by sqrt_cst value (sqrt(2/N)), because the factor cancels out when
+    // calculating the phase_angle -> saves an operation here and there ...
     let sum1 = zj.iter().zip(cos_uv2.iter()).fold(0., |acc, (x, c)| acc + (x * c)); // q_2 * cos(phi_2) = sqrt_cst * sum1 (Eq. 12)
     let sum2 = zj.iter().zip(sin_uv2.iter()).fold(0., |acc, (y, s)| acc - (y * s)); // q_2 * sin(phi_2) = sqrt_cst * sum2 (Eq. 13)
 
-    // The norm here is the same as the amplitude, if we calculate it this way
     // By summing all zj^2 values and sqrting the result
     let amplitude = zj.iter().map(|i| i * i).sum::<f64>().sqrt();
 
-    let mut phase_angle = ((sum1 * sqrt_cst) / amplitude).acos() + PI; // need to offset by ' + PI', this works for fiverings
-    
-//    println!("{}", sum1);
-//    println!("{}", sum2);
-//    if sum1 < 0.0 {
-//        phase_angle = PI - phase_angle
-//    }; 
-//
-//    if phase_angle < 0.0 {
-//        phase_angle += TWOPI // make phase_angle in range 0. -> 2PI
-//    };
-//
-//    phase_angle *= PIS_IN_180; // <f64>.to_degrees() takes a self, not &mut self
+    // (sum2/sum1) = sin(phase_angle) / cos(phase_angle) -> atan2(sum2/sum1) = phase_angle
+    let mut phase_angle = sum2.atan2(sum1); 
 
-    // Nadenken en testen of de waarde van amplitude nog geupdate moet worden of niet 
-    // In Cpptraj wordt de amplitude (Q) eerst bepaald adhv summation over sum1 en sum2, 
-    // en niet als een sum van de zj's . 
-    // Op het einde wordt amplitude, bij sixrings, nog eens gecorrigeerd met de voor N = 6 ? 
-    //     Maar moeten wij dit nog doen dan?
+    // Some mirroring and subtractions are needed to make everything come out right
+    if sum1 <= 0.0 { phase_angle = PI - phase_angle }; 
+    if sum1 < 0.0 { phase_angle = TWOPI - phase_angle }; 
+    if sum1 > 0.0 { phase_angle -= PI }
+
+    if phase_angle < 0.0 { phase_angle += TWOPI }; // radians range
+    phase_angle *= PIS_IN_180; // <f64>.to_degrees() takes a self, not &mut self
 
     match size {
         5 => {
-            if sum1 < 0.0 { phase_angle = PI - phase_angle }; 
-            if phase_angle < 0.0 { phase_angle += TWOPI }; // radians range
-            phase_angle *= PIS_IN_180; // <f64>.to_degrees() takes a self, not &mut self
-
             MemberedRing::Five(CP5::new(amplitude, phase_angle))
         },
         6 => {
-            let q3: f64 = zj.iter().zip([1., -1., 1., -1., 1., -1.]).map( |(z, factor)| z * factor).sum::<f64>() / (size as f64).sqrt();
+            let q3: f64 = zj.iter().zip([1., -1., 1., -1., 1., -1.])
+                                    .map( |(z, factor)| z * factor).sum::<f64>() / (size as f64)
+                                    .sqrt();
 
-            if sum1 < 0.0 || sum2 < 0.0 { phase_angle = PI - phase_angle }; 
-            if phase_angle < 0.0 { phase_angle += TWOPI }; // radians range
-            phase_angle *= PIS_IN_180; // <f64>.to_degrees() takes a self, not &mut self
-            // For some reason, it is necessary to prepend with 'PI - ' to make theta come out right
+            // For some reason, it is necessary to mirror the value over PI
             let theta = (PI - (q3/amplitude).acos()) * PIS_IN_180; // acos -> to_degrees()
 
             MemberedRing::Six(CP6::new(amplitude, phase_angle, theta))
         },
         _ => panic!("Ringsystem prompted is not FIVE-membered or SIX-membered.")
     }
-
-//    (amplitude, phase_angle)
-//      if (N == 6) {
-//    double q3 = 0.0;
-//    double mult = 1.0;
-//    for (int i = 0; i < N; i++) {
-//      q3 += mult * Zn[i]; // mult ~ pow( -1.0, i )
-//      mult = -mult;
-//    }
-//    q3 /= sqrt( dN );
-//    // Calculate theta
-//    theta = atan2( amplitude, q3 );
-
 }
 
 

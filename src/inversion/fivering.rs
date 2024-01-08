@@ -222,12 +222,14 @@ pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f64;5]) -> Fiv
     };
 
     // final rotation
-    fivering.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p1, p_g), 0); // centers to array around geometric center too
+    // Rotate the xi-coordinate correctly
+    fivering.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p1, p_g), 0);
     fivering.p2[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p2, p_g), 0);
     fivering.p3[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p3, p_g), 0);
     fivering.p4[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p4, p_g), 0);
     fivering.p5[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p5, p_g), 0);
 
+    // Rotate the yi-coordinate correctly
     fivering.p1[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p1, p_g), 1);
     fivering.p2[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p2, p_g), 1);
     fivering.p3[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_fivering.p3, p_g), 1);

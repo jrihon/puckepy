@@ -201,8 +201,6 @@ fn calculate_local_elevation(rho : f64, theta: f64, phi: f64, c1 : f64,  c2 : f6
 
 
 /// Calculate projected bondlengths and bond angles 
-///
-///
 pub struct ProjectionPartition {
     pub rpij : Array2::<f64>,
     pub cosbpijk : Array2::<f64>,
@@ -394,8 +392,6 @@ pub fn reconstruct_coordinates(proj : ProjectionPartition, sphere_size : usize, 
                                 0.,
                                 0.]; //pQ
 
-//      rhoPS1 = atan2(pP[1],pP[0]);
-//	    rhoPS2 = atan2(pP[1],pP[0]-OQ);
         let rho_ps1 = p_p[1].atan2(p_p[0]);
         let rho_ps2 = p_p[1].atan2(p_p[0] - proj.oq[i]);
 

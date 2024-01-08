@@ -1,13 +1,165 @@
 use std::f64::consts::PI;
+use pyo3::{pyclass, pymethods};
 
 use crate::conf_sampling::sixring::TWOPI;
-
-use crate::formalism::{CP5, CP6, MemberedRing, PIS_IN_180};
+use crate::formalism::{
+    moleculefile::Pdb,
+    PIS_IN_180,
+    search_atomname::FindString
+};
 
 use crate::geometry::fundamental_ops::{normalise_vector, cross_product, dot_product};
 
+
+// Enum to control the which type of n-membered ring system is being produced and 
+// returns the correct one to the user.
+// Acts as an addition safety measure whenever users prompt incorrect amount of values in function
+// calls
+enum MemberedRing {
+    Five(CP5),
+    Six(CP6)
+}
+
+/// The CP tuple-struct holds the (amplitude, phase_angle) parameters
+#[pyclass(get_all)]
+pub struct CP5 {
+    pub amplitude: f64,
+    pub phase_angle: f64,
+}
+
+#[pymethods]
+impl CP5 {
+
+    #[new]
+    fn new(amplitude: f64, phase_angle: f64) -> CP5 {
+        if amplitude > 1. {
+            panic!("amplitude value is larger than 1.")
+        }
+
+        if !(0.0..=360.0).contains(&phase_angle) {
+            panic!("phase_angle value should be within the range of 0 -> 360")
+        }
+
+        CP5 { amplitude, phase_angle }
+    }
+
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn cp_from_atomnames<'a>(&self, pdb : &'a Pdb, query_names: Vec<String>) -> (f64, f64) {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.cp_from_indices(pdb.coordinates.clone(), indices) // I have to make this a clone()
+                                                               // because it does not satisfy the
+                                                               // PyObject trait bound for a reason
+                                                               // unbeknownst to me
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn cp_from_indices(&self, coord_array : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(coord_array[idx])
+        }
+
+       match cremer_pople(&mut molarray) {
+           MemberedRing::Five(cp) => (cp.amplitude, cp.phase_angle),
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+       }
+    }
+    
+
+//    fn to_as_angle(&self) -> f64 {
+//        // let mut phase_angle = self.1 - 90.;
+//        // if phase_angle < 0. { 
+//        //     phase_angle += 360.
+//        // }; => Original code
+//
+//        // If the value is smaller than 0 after decreasing 90, it is already smaller than 90
+//        // This means that we will do two operations, a -90 and then +360
+//        // This cuts out an operation or two down the line
+//        if self.phase_angle < 90. { self.phase_angle + 270. } else { self.phase_angle - 90. }
+//
+//    }
+    
+}
+
+
+#[pyclass]
+pub struct CP6 {
+    amplitude: f64,
+    phase_angle: f64,
+    theta: f64,
+}
+
+#[pymethods]
+impl CP6 {
+
+    #[new]
+    fn new(amplitude: f64, phase_angle: f64, theta: f64) -> CP6 {
+        if amplitude > 1. {
+            panic!("amplitude value is larger than 1.")
+        }
+
+        if !(0.0..=360.0).contains(&phase_angle) {
+            panic!("phase_angle value should be within the range of 0 -> 360")
+        }
+
+        if !(0.0..=180.0).contains(&theta) {
+            panic!("theta value should be within the range of 0 -> 180")
+        }
+
+        CP6 { amplitude, phase_angle, theta }
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64, f64) {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(coordinates[idx])
+        }
+
+       match cremer_pople(&mut molarray) {
+           MemberedRing::Six(cp) => (cp.amplitude, cp.phase_angle, cp.theta),
+           _ => panic!("An amount, not equal to 6, has been queried. Expected 6 elements.")
+       }
+    }
+    
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> (f64, f64, f64) {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.from_indices(pdb.coordinates.clone(), indices)
+    }
+
+}
+
+
+
 // The Cremer-Pople algorithm; the main function
-pub fn cremer_pople(molarray: &mut Vec<[f64; 3]>) -> MemberedRing {
+fn cremer_pople(molarray: &mut Vec<[f64; 3]>) -> MemberedRing {
     
     geometric_center_of_molecule(molarray);
     let mol_axis = molecular_axis(&molarray);

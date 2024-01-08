@@ -7,6 +7,9 @@ use pyo3::PyErr;
 /// https://www.cgl.ucsf.edu/chimera/docs/UsersGuide/tutorials/pdbintro.html : PDB format
 ///
 /// https://doc.rust-lang.org/std/fmt/index.html#syntax : Formatting syntax in Rust
+
+
+
 #[pyfunction]
 pub fn write_to_pdb(fname: OsString,  array: Vec<[f64;3]>, resname: String) -> Result<(), PyErr> {
     

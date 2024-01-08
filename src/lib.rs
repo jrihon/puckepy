@@ -16,7 +16,10 @@ use conf_sampling::{
 
 mod formalism;
 use formalism::{
-    CP5, CP6, AS, Pdb, Xyz, SP
+    cremerpople::{CP5, CP6},
+    altonasund::AS,
+    strausspickett::SP,
+    moleculefile::{Pdb, Xyz},
 };
 
 mod inversion;

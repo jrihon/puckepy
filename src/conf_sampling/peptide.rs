@@ -15,7 +15,7 @@ pub struct Peptide {
 impl Peptide {
 
     #[new]
-    fn new(num: u16) -> Peptide {
+    fn new(num: u16) -> Self {
 
         let amount = (num * num) as usize;
 

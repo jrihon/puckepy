@@ -1,8 +1,61 @@
+use pyo3::{pyclass,pymethods};
 
 use crate::geometry::molecule_ops::{dihedral, bondangle};
+use crate::formalism::{
+    moleculefile::Pdb,
+    search_atomname::FindString
+};
+
+#[pyclass(get_all)]
+pub struct SP { }
+
+#[pymethods]
+impl SP {
+
+    #[new]
+    fn new() -> SP {
+        SP { }
+
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> ([f64;3], [f64;3]) {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(coordinates[idx])
+        }
+
+        strauss_pickett(molarray)
+    }
+    
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> ([f64;3], [f64;3])  {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.from_indices(pdb.coordinates.clone(), indices)
+    }
+
+}
 
 
-pub fn strauss_pickett(molarray: Vec<[f64;3]>) -> ([f64;3], [f64;3]) {
+
+
+
+
+
+fn strauss_pickett(molarray: Vec<[f64;3]>) -> ([f64;3], [f64;3]) {
 
 
     ([

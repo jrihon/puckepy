@@ -17,7 +17,6 @@ pub struct Fivering {
 #[pymethods]
 impl Fivering {
     
-    // implement the __init__() function for the wrapper
     #[new]
     fn new(num: u16) -> Self {
         
@@ -69,7 +68,7 @@ pub struct FiveringAxes {
 // We only return the FiveringAxes to the user to allow them to use the attributes it hold.
 // The module has no purpose in allowing the user to generate their own Fivering Class
 impl FiveringAxes {
-    /// Initialise the struct with a near-empty array
+    // Initialise the struct with a near-empty array
     fn new(num: usize) -> FiveringAxes {
         FiveringAxes {
             zx: Array1::linspace(-60., 60., num).into_raw_vec(),

@@ -232,13 +232,15 @@ pub fn reconstruct_coordinates(proj : ProjectionPartition, z_j : [f64;6]) -> Six
     let rot4 = RotationMatrix::new(-rho_g);
 
     // final rotation
-    sixring.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p1, p_g), 0); // centers to array around geometric center too
+    // Rotate the xi-coordinate correctly
+    sixring.p1[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p1, p_g), 0);
     sixring.p2[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p2, p_g), 0);
     sixring.p3[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p3, p_g), 0);
     sixring.p4[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p4, p_g), 0);
     sixring.p5[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p5, p_g), 0);
     sixring.p6[0] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p6, p_g), 0);
 
+    // Rotate the yi-coordinate correctly
     sixring.p1[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p1, p_g), 1);
     sixring.p2[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p2, p_g), 1);
     sixring.p3[1] = rot4.apply_rotation_around_g(subtract_arr(tmp_sixring.p3, p_g), 1);

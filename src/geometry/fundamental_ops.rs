@@ -169,6 +169,7 @@ mod test_linalg {
 
     use assert_float_eq::*;
     use super::*;
+    use crate::geometry::molecule_ops::dihedral;
 
     #[test]
     pub fn planarity() {

@@ -1,5 +1,5 @@
 use pyo3::pyfunction;
-use crate::geometry::{LinAlg, Coordinate, RotMatrix, RotationMatrix, subtract_arr};
+use crate::geometry::fundamental_ops::{LinAlg, Coordinate, RotMatrix, RotationMatrix, subtract_arr};
 use std::f64::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;

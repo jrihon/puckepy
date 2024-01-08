@@ -4,7 +4,7 @@ use crate::conf_sampling::sixring::TWOPI;
 
 use crate::formalism::{CP5, CP6, MemberedRing, PIS_IN_180};
 
-use crate::geometry::{normalise_vector, cross_product, dot_product};
+use crate::geometry::fundamental_ops::{normalise_vector, cross_product, dot_product};
 
 // The Cremer-Pople algorithm; the main function
 pub fn cremer_pople(molarray: &mut Vec<[f64; 3]>) -> MemberedRing {
@@ -91,8 +91,9 @@ fn return_cp_coordinates(zj : Vec<f64>) -> MemberedRing {
     let mut phase_angle = sum2.atan2(sum1); 
 
     // Some mirroring and subtractions are needed to make everything come out right
-    if sum1 <= 0.0 { phase_angle = PI - phase_angle }; 
-    if sum1 < 0.0 { phase_angle = TWOPI - phase_angle }; 
+//    if sum1 <= 0.0 { phase_angle = PI - phase_angle }; 
+//    if sum1 < 0.0 { phase_angle = TWOPI - phase_angle }; 
+    if sum1 <= 0.0 { phase_angle = PI + phase_angle }; 
     if sum1 > 0.0 { phase_angle -= PI }
 
     if phase_angle < 0.0 { phase_angle += TWOPI }; // radians range

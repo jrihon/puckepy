@@ -2,7 +2,8 @@ use pyo3::{pyclass, pymethods};
 use ndarray::{Array1, Array2, ArrayBase, DataOwned, Ix2};
 
 // Crate imports
-use crate::geometry::{dihedral, subtract_arr, RotationMatrix, Coordinate, RotMatrix, LinAlg};
+use crate::geometry::fundamental_ops::{subtract_arr, RotationMatrix, Coordinate, RotMatrix, LinAlg};
+use crate::geometry::molecule_ops::dihedral;
 
 use std::f64::consts::PI;
 use crate::inversion::{RIJ,RIJSQ,COSBIJK};

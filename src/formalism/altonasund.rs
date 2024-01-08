@@ -1,6 +1,6 @@
 #![allow(unused)]
 use crate::conf_sampling::sixring::TWOPI;
-use crate::geometry::dihedral;
+use crate::geometry::molecule_ops::dihedral;
 use crate::formalism::AS;
 use std::f64::consts::PI;
 
@@ -28,7 +28,7 @@ const PIOVERFIVE: f64 = 0.628318530718;
 //     While AS assumes C2' -> C3' -> C4' -> O4' -> C1'  
 // 
 // Function courtesy of Cpptraj Github : https://github.com/Amber-MD/cpptraj/blob/master/src/TorsionRoutines.cpp
-pub fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> AS {
+pub fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> (f64, f64) {
     
 //    let theta1 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
 //    let theta2 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
@@ -80,5 +80,5 @@ pub fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> AS {
 //  if (pucker < 0) pucker += Constants::TWOPI;
 //
 
-    AS::new(amplitude, phase_angle)
+    (amplitude, phase_angle)
 }

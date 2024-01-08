@@ -1,13 +1,21 @@
 use pyo3::{pymethods,pyclass, PyErr};
 use std::fs;
 
-
 pub mod cremerpople;
 pub mod altonasund;
 
 mod search_atomname;
 use self::search_atomname::FindString; // Find name of &str 'String'.at_position()
 
+const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;              // taken from <f64>.to_degrees() for i in range(NUM):
+
+
+
+
+// Enum to control the which type of n-membered ring system is being produced and 
+// returns the correct one to the user.
+// Acts as an addition safety measure whenever users prompt incorrect amount of values in function
+// calls
 pub enum MemberedRing {
     Five(CP5),
     Six(CP6)
@@ -75,7 +83,7 @@ impl CP5 {
         self.cp_from_indices(pdb.coordinates.clone(), indices)
     }
 
-    fn to_as(&self) -> AS {
+    fn to_as_angle(&self) -> f64 {
         // let mut phase_angle = self.1 - 90.;
         // if phase_angle < 0. { 
         //     phase_angle += 360.
@@ -84,9 +92,7 @@ impl CP5 {
         // If the value is smaller than 0 after decreasing 90, it is already smaller than 90
         // This means that we will do two operations, a -90 and then +360
         // This cuts out an operation or two down the line
-        let new_angle = if self.phase_angle < 90. { self.phase_angle + 270. } else { self.phase_angle - 90. };
-
-        AS::new(self.amplitude, new_angle)
+        if self.phase_angle < 90. { self.phase_angle + 270. } else { self.phase_angle - 90. }
 
     }
     
@@ -179,7 +185,12 @@ impl AS {
             molarray.push(pdb.coordinates[idx])
         }
 
-        altonasund::altona_sundaralingam(&molarray)
+        altonasund::altona_sundaralingam(&mut molarray)
+
+//       match cremerpople::cremer_pople(&mut molarray) {
+//           MemberedRing::Five(a) => a.to_as(),
+//           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+//       }
     }
     
     // Find the indices of the atomnames and pass them to self.as_from_indices()
@@ -200,7 +211,7 @@ impl AS {
         self.as_from_indices(pdb, indices)
     }
 
-    fn to_cp(&self) -> CP5 {
+    fn to_cp(&self) -> f64 {
         // let mut phase_angle = self.1 + 90.;
         // if phase_angle > 360. { 
         //     phase_angle -= 360.
@@ -208,10 +219,8 @@ impl AS {
 
         // If the value is larger than 360 after adding 90, it is already larger than 270
         // This means that we will do two operations, a +90 and then -360
-        // This cuts out an operation or two down the line
-        let new_angle = if self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. };
-
-        CP5::new(self.amplitude, new_angle)
+        // This cuts out an instruction or two down the line
+        if self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. }
 
     }
 }

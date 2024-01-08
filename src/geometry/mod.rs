@@ -155,20 +155,16 @@ pub fn subtract_arr(a : Coordinate, b : Coordinate) -> Coordinate {
 
 /// Calculate the dihedral between four Coordinate points
 /// A dihedral is an angle between four points.
-/// Essentially : 
-///     get three vector from the four points; b0, b1 and b2
-///     from cross(b0, b1) and cross(b1, b2) we get two direction axes
-///     -> The dot product between those to direction axes results in the dihedral angle
-///
-///     Here we use the praxeolitic formula, which involves 1 sqrt and 1 cross product
-///     This does not use the description above, but it is more performant than this description
-///     See : https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
-///
-/// Semantically, it makes little sense to implement the dihedral function as a method on
-/// the Coordinate type, as we need to add three more Coordinate variables to the function
-/// arguments
-/// That is why it remains as a standalone public function
-///
+/// Returns a value in degrees [-180. -> 180.]
+// Essentially : 
+//     get three vector from the four points; b0, b1 and b2
+//     from cross(b0, b1) and cross(b1, b2) we get two direction axes
+//     -> The dot product between those to direction axes results in the dihedral angle
+//
+//     Here we use the praxeolitic formula, which involves 1 sqrt and 1 cross product
+//     This does not use the description above, but it is more performant than this description
+//     See : https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
+//
 #[allow(dead_code)]
 pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordinate) -> f64 {
     let b0 = p0.subtract_arr(&p1);

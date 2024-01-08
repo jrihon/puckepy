@@ -2,7 +2,7 @@ use std::f64::consts::PI;
 
 use crate::conf_sampling::sixring::TWOPI;
 
-use crate::formalism::{CP5, CP6, MemberedRing};
+use crate::formalism::{CP5, CP6, MemberedRing, PIS_IN_180};
 
 use crate::geometry::{normalise_vector, cross_product, dot_product};
 
@@ -78,9 +78,6 @@ fn return_cp_coordinates(zj : Vec<f64>) -> MemberedRing {
     let size = zj.len();
     let cos_uv2: Vec<f64> = (0..size).map(|i| ((4. * PI * i as f64) / size as f64).cos() ).collect();     // cos(2pi * m * i / 5) (Eq. 12)
     let sin_uv2: Vec<f64> = (0..size).map(|i| ((4. * PI * i as f64) / size as f64).sin() ).collect();     // sin(2pi * m * i / 5) (Eq. 12)
-    const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;              // taken from
-                                                                                    // <f64>.to_degrees()
-                                                                                    //     for i in range(NUM):
 
     // We are not using multiplying by sqrt_cst value (sqrt(2/N)), because the factor cancels out when
     // calculating the phase_angle -> saves an operation here and there ...

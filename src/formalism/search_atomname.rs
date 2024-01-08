@@ -1,8 +1,11 @@
 
+// Implement a map to find a pattern (&str) in a Vec<String> and return at which position this is,
+// in linear search time .
 pub trait FindString {
     fn at_position(&self, pattern: &str) -> Result<usize, ()> ;
 }
 
+// Implement this on Vec<String> . Allows the match while looping
 impl FindString for Vec<String> {
 
     fn at_position(&self, pattern: &str) -> Result<usize, ()> {
@@ -18,17 +21,5 @@ impl FindString for Vec<String> {
         };
 
         Err(())
-
-//        let a = self.iter().try_fold( 0_u32, |mut prev: u32, atomname| 
-//            {
-//                if atomname == pattern {
-//                    ControlFlow::Continue(prev += 1_u32)
-//                } else {
-//                    ControlFlow::Break(prev)
-//                }
-//            });
-//
-//        Ok(4)
     }
-    
 }

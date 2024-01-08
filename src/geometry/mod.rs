@@ -2,7 +2,6 @@
 /// so I write it myself and this way I can implement them on primitives
 ///
 
-use crate::pyfunction;
 use std::f64::consts::PI;
 
 /// 3D coordinates-types and -matrices from primitives
@@ -10,14 +9,6 @@ pub type Coordinate = [f64; 3];
 pub type DirectionAxis = [f64; 3];
 pub type RotationMatrix = [[f64; 3]; 3];
 
-
-
-
-// Testing
-#[pyfunction]
-pub fn testing_submodule(a: i32) -> i32 {
-   a + 10 
-}
 ///
 ///
 ///
@@ -165,7 +156,7 @@ pub fn subtract_arr(a : Coordinate, b : Coordinate) -> Coordinate {
 //     This does not use the description above, but it is more performant than this description
 //     See : https://stackoverflow.com/questions/20305272/dihedral-torsion-angle-from-four-points-in-cartesian-coordinates-in-python
 //
-#[allow(dead_code)]
+
 pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordinate) -> f64 {
     let b0 = p0.subtract_arr(&p1);
     let b1 = p2.subtract_arr(&p1).normalise_vector(); // do not let magnitude affect subsequent operations
@@ -193,6 +184,12 @@ pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordina
     
 }
 
+pub fn angle(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate) -> f64 {
+
+    let a = p0.subtract_arr(&p1);
+    let b = p2.subtract_arr(&p1);
+    (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]).acos()
+}
 
 
 /// Custom trait to extend primitive type :

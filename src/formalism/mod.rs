@@ -1,9 +1,9 @@
 use pyo3::{pymethods,pyclass, PyErr};
 use std::fs;
 
-pub mod cremerpople;
-pub mod altonasund;
-
+mod cremerpople;
+mod altonasund;
+mod strausspickett;
 mod search_atomname;
 use self::search_atomname::FindString; // Find name of &str 'String'.at_position()
 
@@ -16,7 +16,7 @@ const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;              
 // returns the correct one to the user.
 // Acts as an addition safety measure whenever users prompt incorrect amount of values in function
 // calls
-pub enum MemberedRing {
+enum MemberedRing {
     Five(CP5),
     Six(CP6)
 }
@@ -26,13 +26,6 @@ pub enum MemberedRing {
 pub struct CP5 {
     pub amplitude: f64,
     pub phase_angle: f64,
-}
-
-#[pyclass(get_all)]
-pub struct CP6 {
-    pub amplitude: f64,
-    pub phase_angle: f64,
-    pub theta: f64,
 }
 
 #[pymethods]
@@ -80,7 +73,7 @@ impl CP5 {
             }
         }
 
-        self.cp_from_indices(pdb.coordinates.clone(), indices)
+        self.cp_from_indices(pdb.coordinates, indices)
     }
 
     fn to_as_angle(&self) -> f64 {
@@ -98,6 +91,13 @@ impl CP5 {
     
 }
 
+
+#[pyclass(get_all)]
+pub struct CP6 {
+    pub amplitude: f64,
+    pub phase_angle: f64,
+    pub theta: f64,
+}
 
 #[pymethods]
 impl CP6 {
@@ -148,11 +148,53 @@ impl CP6 {
             }
         }
 
-        self.cp_from_indices(pdb.coordinates.clone(), indices)
+        self.cp_from_indices(pdb.coordinates, indices)
     }
 
 }
 
+#[pyclass(get_all)]
+pub struct SP { }
+
+#[pymethods]
+impl SP {
+
+    #[new]
+    fn new(amplitude: f64, phase_angle: f64, theta: f64) -> SP {
+        SP { }
+
+    }
+
+    // Calculate Cremer-Pople formalism by prompted indices
+    fn sp_from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> ([f64;3], [f64;3]) {
+        
+        let mut molarray: Vec<[f64; 3]> = vec![];
+
+        for idx in indices {
+            molarray.push(coordinates[idx])
+        }
+
+        strausspickett::strauss_pickett(molarray)
+    }
+    
+    // Find indices of atomnames and pass them to self.cp_from_indices()
+    fn sp_from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> ([f64;3], [f64;3])  {
+
+        // Make empty vec :
+        let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        // Search for the indices of the atom names
+        for name in query_names.iter() {
+            match pdb.atomnames.at_position(name) {
+                Ok(a) => indices.push(a),
+                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
+            }
+        }
+
+        self.sp_from_indices(pdb.coordinates, indices)
+    }
+
+}
 
 /// The AS tuple-struct holds the (amplitude, phase_angle) parameters
 #[pyclass(get_all)]
@@ -300,66 +342,6 @@ impl Pdb {
             coordinates
         })
     }
-
-
-//    // Calculate Cremer-Pople formalism by prompted indices
-//    fn cp_from_indices(&self, indices: Vec<usize>) -> MemberedRing {
-//        
-//        let mut molarray: Vec<[f64; 3]> = vec![];
-//
-//        for idx in indices {
-//            molarray.push(self.coordinates[idx])
-//        }
-//
-//       cremerpople::cremer_pople(&mut molarray)
-//    }
-//    
-//    // Find indices of atomnames and pass them to self.cp_from_indices()
-//    fn cp_from_atomnames(&self, query_names: Vec<String>) -> MemberedRing {
-//
-//        // Make empty vec :
-//        let mut indices: Vec<usize> = Vec::with_capacity(6);
-//
-//        // Search for the indices of the atom names
-//        for name in query_names.iter() {
-//            match self.atomnames.at_position(name) {
-//                Ok(a) => indices.push(a),
-//                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
-//            }
-//        }
-//
-//        self.cp_from_indices(indices)
-//    }
-//
-//    // Calculate Altona Sundaralingam formalism by the indices
-//    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
-//        
-//        let mut molarray: Vec<[f64; 3]> = vec![];
-//
-//        for idx in indices {
-//            molarray.push(self.coordinates[idx])
-//        }
-//
-//        altonasund::altona_sundaralingam(&molarray)
-//    }
-//    
-//    // Find the indices of the atomnames and pass them to self.as_from_indices()
-//    fn as_from_atomnames(&self, query_names: Vec<String>) -> AS {
-//
-//        // Make empty vec :
-//        let mut indices: Vec<usize> = Vec::with_capacity(6);
-//
-//        // Search for the indices of the atom names
-//        for name in query_names.iter() {
-//            match self.atomnames.at_position(name) {
-//                Ok(a) => indices.push(a),
-//                Err(()) => panic!("Could not find \"{}\" atomname in the queried pdb.", name)
-//            }
-//        }
-//
-//        // Call cp_from_indices
-//        self.as_from_indices(indices)
-//    }
 }
 
 
@@ -434,29 +416,4 @@ impl Xyz {
 
         Ok(Xyz { coordinates})
     }
-
-//    // Cremer Pople for indices
-//    fn cp_from_indices(&self, indices: Vec<usize>) -> MemberedRing {
-//        
-//        let mut molarray = vec![];
-//
-//        for idx in indices {
-//            molarray.push(self.coordinates[idx])
-//        };
-//
-//        cremerpople::cremer_pople(&mut molarray)
-//    }
-//
-//    // Altona Sundaralingam for indices
-//    fn as_from_indices(&self, indices: Vec<usize>) -> AS {
-//        
-//        let mut molarray = vec![];
-//
-//        for idx in indices {
-//            molarray.push(self.coordinates[idx])
-//        };
-//
-//        altonasund::altona_sundaralingam(&mut molarray)
-//    }
-    
 }

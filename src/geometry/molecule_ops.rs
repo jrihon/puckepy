@@ -11,7 +11,7 @@ use std::f64::consts::PI;
 use pyo3::pyfunction;
 
 use crate::geometry::fundamental_ops::LinAlg;
-
+use crate::formalism::PIS_IN_180;
 
 // 3D coordinates-types and -matrices from primitives
 pub type Coordinate = [f64; 3];
@@ -60,16 +60,17 @@ pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordina
 #[pyfunction]
 pub fn bondangle(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate) -> f64 {
 
-    let a = p0.subtract_arr(&p1);
-    let b = p2.subtract_arr(&p1);
-    (a[0] * b[0]) + (a[1] * b[1]) + (a[2] * b[2]).acos()
+    let a = p0.subtract_arr(&p1).normalise_vector();
+    let b = p2.subtract_arr(&p1).normalise_vector();
+    b.dot_product(&a).acos() * PIS_IN_180
 }
 
 
 /// -> sqrt(x² + y² + z²)
 /// This gives the length of the vector
 #[pyfunction]
-pub fn bondlength(c : [f64;3]) -> f64 {
+pub fn bondlength(p0 : Coordinate, p1: Coordinate) -> f64 {
+    let c = p0.subtract_arr(&p1);
     c.map(|x: f64| x.powi(2))
         .into_iter()
         .sum::<f64>()

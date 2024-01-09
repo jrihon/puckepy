@@ -9,4 +9,4 @@ mod search_atomname; // match a pattern in a Vec<String>. If not found, Err(()) 
 
 
 // Used to convert -> to radians
-const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;
+pub const PIS_IN_180: f64 = 57.2957795130823208767981548141051703_f64;

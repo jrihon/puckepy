@@ -44,7 +44,7 @@ impl CP5 {
     }
 
     // Find indices of atomnames and pass them to self.cp_from_indices()
-    fn cp_from_atomnames<'a>(&self, pdb : &'a Pdb, query_names: Vec<String>) -> (f64, f64) {
+    fn from_atomnames<'a>(&self, pdb : &'a Pdb, query_names: Vec<String>) -> (f64, f64) {
 
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
@@ -57,14 +57,14 @@ impl CP5 {
             }
         }
 
-        self.cp_from_indices(pdb.coordinates.clone(), indices) // I have to make this a clone()
+        self.from_indices(pdb.coordinates.clone(), indices) // I have to make this a clone()
                                                                // because it does not satisfy the
                                                                // PyObject trait bound for a reason
                                                                // unbeknownst to me
     }
 
     // Calculate Cremer-Pople formalism by prompted indices
-    fn cp_from_indices(&self, coord_array : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
+    fn from_indices(&self, coord_array : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
         
         let mut molarray: Vec<[f64; 3]> = vec![];
 

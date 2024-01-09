@@ -1,6 +1,31 @@
-use std::fs;
+use core::panic;
+use std::fs::read_to_string;
 use pyo3::{pyclass, pymethods, PyErr};
 
+
+fn prepare_contents(fname: &String, extension: &str) -> String {
+
+    if !fname.ends_with(extension) {
+        panic!("The {} is not a valid `{}` file format ", &fname, extension)
+    };
+
+    // Read contents once
+    let filecontents = match read_to_string(&fname) {
+        Ok(contents) => contents,
+        Err(e) => panic!("{}", e)
+    };
+
+    // Check if contents exists
+    if filecontents.is_empty() { panic!("The {} is empty!", &filecontents)};
+
+    filecontents
+    
+}
+
+//pub struct FileContents {
+//    fc: String // filecontents
+//}
+//
 /// The only thing we need from the pdb is 
 /// Atom names Vec<String>
 /// Coordinates, best to do as Vec<[f64;3]>
@@ -28,18 +53,7 @@ impl Pdb {
     #[new]
     fn new(fname: String) -> Result<Pdb, PyErr> {
 
-        if !fname.ends_with(".pdb") {
-            panic!("The {} is not a valid `.pdb` file format ", &fname)
-        };
-
-        let file = match fs::read_to_string(&fname) {
-            Ok(a) => a,
-            Err(e)=> panic!("{}", e),
-        };
-
-        if file.is_empty() { 
-            panic!("The file {} is empty.", &fname)
-        }; 
+        let _ = prepare_contents(&fname, ".pdb");
 
         Ok(Pdb {
             fname,
@@ -50,13 +64,15 @@ impl Pdb {
 
     fn parse(&self) -> Pdb {
 
-        let pdblines = self.fname.lines().map(|s| s.into()).collect::<Vec<String>>();
+        let pdblines = read_to_string(&self.fname).unwrap().lines()
+                                                  .map(|s| s.into())
+                                                  .collect::<Vec<String>>();
 
         let mut atomnames: Vec<String> = vec![];
         let mut coordinates: Vec<[f64;3]> = vec![];
 
         for lines in pdblines.iter() {
-            if lines.starts_with("ATOM") { 
+            if lines.starts_with("ATOM") || lines.starts_with("HETATM") { 
                 atomnames.push(lines[12..16].trim().into());
 
                 let x = match lines[31..39].trim().parse::<f64>() {
@@ -88,7 +104,97 @@ impl Pdb {
     // For iterate if there are multiple residue numbers to begin with, 
     // then store a Vec of Pdb structs and return this
     fn parse_by_monomers(&self) -> Vec<Pdb> {
-        todo!()
+
+        let pdblines = read_to_string(&self.fname).unwrap().lines()
+                                                  .map(|s| s.into())
+                                                  .collect::<Vec<String>>();
+
+        let mut pdbs: Vec<Pdb> = vec![];
+        let mut resnumber: u16 = 42069; // residue names can only go to 9999, so this is safe
+
+        let mut atomnames_container: Vec<String> = vec![];
+        let mut coordinates_container: Vec<[f64;3]> = vec![];
+
+
+        let mut peekaboo_it = pdblines.iter().peekable();
+        while let Some(lines) = peekaboo_it.next() {
+
+            if lines.starts_with("ATOM") || lines.starts_with("HETATM") { 
+
+                // Check residue number first
+                let parsed_resname: u16 = match lines[22..26].trim().parse() {
+                    Ok(a) => a,
+                    Err(_) => panic!("Residue number cannot be parsed as an integer, at\n{}", &lines)
+                };
+                // If there is a valid u16, set it as the current residue number, for the first one
+                // parsed from the file
+                if resnumber == 42069 { 
+                    resnumber = parsed_resname 
+                };
+
+                if resnumber != parsed_resname {
+                    // Drain the atomnames and coordinates Vecs into a Pdb 
+                    // Push the Pdb onto the Vec<Pdb>
+                    pdbs.push( Pdb {
+                                 fname: "monomer_".to_string() + &resnumber.to_string(),
+                                 atomnames: atomnames_container.drain(..).collect(),
+                                 coordinates: coordinates_container.drain(..).collect(),
+                               }
+                    );
+
+
+                    // reset the parsed residuename to the residue name
+                    resnumber = parsed_resname;
+
+                    //
+                    // Start pushing to the cleared Vecs at the current line for a new Pdb struct
+                    atomnames_container.push(lines[12..16].trim().into());
+
+                    let x = match lines[31..39].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    let y = match lines[39..47].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    let z = match lines[47..55].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    coordinates_container.push([x,y,z]);
+
+                } else {
+
+                    atomnames_container.push(lines[12..16].trim().into());
+
+                    let x = match lines[31..39].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    let y = match lines[39..47].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    let z = match lines[47..55].trim().parse::<f64>() {
+                        Ok(a) => a,
+                        Err(e) => panic!("{}", e)
+                    };
+                    coordinates_container.push([x,y,z]);
+                }
+            }
+        }
+        // Drain the final atomnames and coordinates Vecs into the last Pdb 
+        let monomer = Pdb {
+            fname: "monomer_".to_string() + &resnumber.to_string(),
+            atomnames: atomnames_container.drain(..).collect(),
+            coordinates: coordinates_container.drain(..).collect(),
+        };
+
+        // Push the Pdb struct onto the Vec
+        pdbs.push(monomer);
+
+        pdbs // return Vec<Pdb>
     }
 }
 
@@ -104,9 +210,9 @@ impl Pdb {
 
 /// The only thing we need from the xyz is 
 /// Coordinates, best to do as Vec<[f64;3]>
-#[pyclass(get_all)]
+#[pyclass]
 pub struct Xyz {
-    pub coordinates: Vec<[f64;3]>
+    filecontents: String,
 }
 
 /// Parses an xyz-file format
@@ -128,21 +234,20 @@ impl Xyz {
     #[new]
     fn new(fname: String) -> Result<Xyz, PyErr> {
 
-        if !fname.ends_with(".xyz") {
-            panic!("The {} is not a valid `.xyz` file format ", &fname)
-        };
+        let filecontents = prepare_contents(&fname, ".xyz");
 
-        let file = match fs::read_to_string(&fname) {
-            Ok(a) => a,
-            Err(e)=> panic!("{}", e),
-        };
+        Ok(Xyz {
+            filecontents,
+        })
 
-        if file.is_empty() { 
-            panic!("The file {} is empty.", &fname)
-        }
+    }
+
+    fn parse(&self) -> Vec<[f64;3]> {
 
         let mut coordinates: Vec<[f64;3]> = vec![];
-        let xyz_lines = file.lines().map(|s| s.into()).collect::<Vec<String>>();
+        let xyz_lines = &self.filecontents.lines()
+                                  .map(|s| s.into())
+                                  .collect::<Vec<String>>();
         let mut xyz_iter = xyz_lines.iter();
 
         // Two next calls, because xyz files always start with two lines of header data
@@ -173,6 +278,6 @@ impl Xyz {
 
         }
 
-        Ok(Xyz { coordinates})
+        coordinates
     }
 }

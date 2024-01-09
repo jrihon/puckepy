@@ -106,11 +106,6 @@ impl AS {
 // Function courtesy of Cpptraj Github : https://github.com/Amber-MD/cpptraj/blob/master/src/TorsionRoutines.cpp
 fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> (f64, f64) {
     
-//    let theta1 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-//    let theta2 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
-//    let theta3 = dihedral(coordinates[2], coordinates[3], coordinates[4], coordinates[0]);
-//    let theta4 = dihedral(coordinates[3], coordinates[4], coordinates[0], coordinates[1]);
-//    let theta0 = dihedral(coordinates[4], coordinates[0], coordinates[1], coordinates[2]);
     let theta4 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
     let theta0 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
     let theta1 = dihedral(coordinates[2], coordinates[3], coordinates[4], coordinates[0]);
@@ -148,13 +143,6 @@ fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> (f64, f64) {
     }
 
     phase_angle *= PIS_IN_180; // to_degrees()
-                               //
-//  amp = sqrt(a*a + b*b); // => this is how you calculate tau_m
-//
-//  if (amp != 0.0)
-//    pucker = atan2(b,a);
-//  if (pucker < 0) pucker += Constants::TWOPI;
-//
 
     (amplitude, phase_angle)
 }

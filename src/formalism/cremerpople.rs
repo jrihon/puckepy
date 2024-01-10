@@ -9,12 +9,13 @@ use crate::formalism::{
 };
 
 use crate::geometry::fundamental_ops::{normalise_vector, cross_product, dot_product};
+use crate::formalism::inversion;
 
 
 // Enum to control the which type of n-membered ring system is being produced and 
 // returns the correct one to the user.
 // Acts as an addition safety measure whenever users prompt incorrect amount of values in function
-// calls
+// calls too
 enum MemberedRing {
     Five(CP5),
     Six(CP6)
@@ -44,7 +45,7 @@ impl CP5 {
     }
 
     // Find indices of atomnames and pass them to self.cp_from_indices()
-    fn from_atomnames<'a>(&self, pdb : &'a Pdb, query_names: Vec<String>) -> (f64, f64) {
+    fn from_atomnames(&self, pdb : &Pdb, query_names: Vec<String>) -> (f64, f64) {
 
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
@@ -78,6 +79,9 @@ impl CP5 {
        }
     }
     
+    fn invert(&self) -> [[f64;3]; 5] {
+        inversion::fivering::invert_fivering(self.amplitude, self.phase_angle)
+    }
 
 //    fn to_as_angle(&self) -> f64 {
 //        // let mut phase_angle = self.1 - 90.;
@@ -152,6 +156,10 @@ impl CP6 {
         }
 
         self.from_indices(pdb.coordinates.clone(), indices)
+    }
+
+    fn invert(&self) -> [[f64;3]; 6] {
+        inversion::sixring::invert_sixring(self.amplitude, self.phase_angle, self.theta)
     }
 
 }

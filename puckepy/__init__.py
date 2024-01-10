@@ -11,9 +11,8 @@ Puckepy
 """
 
 from .puckepy import confsampling
-from .puckepy import inversion
 from .puckepy import formalism
 from .puckepy import geometry
 
-__all__ = ["confsampling", "inversion", "formalism", "geometry"]
+__all__ = ["confsampling", "formalism", "geometry"]
 

@@ -6,7 +6,7 @@ use crate::geometry::fundamental_ops::{subtract_arr, RotationMatrix, Coordinate,
 use crate::geometry::molecule_ops::dihedral;
 
 use std::f64::consts::PI;
-use crate::inversion::{RIJ,RIJSQ,COSBIJK};
+use crate::formalism::inversion::{RIJ,RIJSQ,COSBIJK};
 pub const TWOPI : f64 = 2. * PI; 
 pub const Z_SIZE: usize = 6;
 pub const RHO : f64 = 0.67; // radius of the sphere; constant

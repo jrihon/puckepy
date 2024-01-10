@@ -19,15 +19,19 @@ use formalism::{
     cremerpople::{CP5, CP6},
     altonasund::AS,
     strausspickett::SP,
-    moleculefile::{Pdb, Xyz},
+    moleculefile::{Pdb, 
+                   Xyz,
+                   write_to_pdb,
+                   write_to_xyz
+                    },
 };
 
-mod inversion;
-use inversion::{
-    sixring,
-    fivering,
-    write_file::{write_to_pdb, write_to_xyz},
-};
+//mod inversion;
+//use inversion::{
+//    sixring,
+//    fivering,
+//    write_file::{write_to_pdb, write_to_xyz},
+//};
 
 
 /// A Python module implemented in Rust. The name of this function must match
@@ -57,19 +61,21 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     form_module.add_class::<SP>()?;
     form_module.add_class::<Pdb>()?;
     form_module.add_class::<Xyz>()?;
+    form_module.add_function(wrap_pyfunction!(write_to_pdb, form_module)?)?;
+    form_module.add_function(wrap_pyfunction!(write_to_xyz, form_module)?)?;
 
-    // Add inversion from formalism to molecule to the public API
-    let inv_module = PyModule::new(py, "inversion")?;
-    inv_module.add_function(wrap_pyfunction!(sixring::invert_sixring, inv_module)?)?;
-    inv_module.add_function(wrap_pyfunction!(fivering::invert_fivering, inv_module)?)?;
-    inv_module.add_function(wrap_pyfunction!(write_to_pdb, inv_module)?)?;
-    inv_module.add_function(wrap_pyfunction!(write_to_xyz, inv_module)?)?;
+//    // Add inversion from formalism to molecule to the public API
+//    let inv_module = PyModule::new(py, "inversion")?;
+//    inv_module.add_function(wrap_pyfunction!(sixring::invert_sixring, inv_module)?)?;
+//    inv_module.add_function(wrap_pyfunction!(fivering::invert_fivering, inv_module)?)?;
+//    inv_module.add_function(wrap_pyfunction!(write_to_pdb, inv_module)?)?;
+//    inv_module.add_function(wrap_pyfunction!(write_to_xyz, inv_module)?)?;
 
     // Append submodule to root module
     m.add_submodule(geom_sub_module)?;
     m.add_submodule(cs_module)?;
     m.add_submodule(form_module)?;
-    m.add_submodule(inv_module)?;
+//    m.add_submodule(inv_module)?;
     Ok(())
 
 }

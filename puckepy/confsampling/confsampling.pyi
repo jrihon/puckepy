@@ -1,6 +1,4 @@
-
 from typing import List
-
 
 class Fivering :
     """ Construct a set of axis and torsions for sampling 
@@ -14,7 +12,7 @@ class Fivering :
     """
     nu1 : List[float]
     nu3 : List[float]
-    def __new__(self, interval: int) -> None :  ...
+    def __new__(cls, interval: int) -> None :  ...
 #        nu3 : List[float]
     
 class Peptide :
@@ -29,7 +27,7 @@ class Peptide :
     """
     phi : List[float]
     psi : List[float]
-    def __new__(self, interval: int) -> None :  ...
+    def __new__(cls, interval: int) -> None :  ...
 
 class Sixring :
     """ Construct a set of axis and torsions for sampling 
@@ -45,4 +43,4 @@ class Sixring :
     alpha1 : List[float]
     alpha2 : List[float]
     alpha3 : List[float]
-    def __new__(self, amount: int) -> None : ...
+    def __new__(cls, amount: int) -> None : ...

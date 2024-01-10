@@ -1,18 +1,10 @@
-"""   
-Puckepy 
-========
- Import the puckepy module
 
- This module contains the following submodules : 
-    - confsampling
-    - inversion
-    - formalism
-    - geometry
-"""
+from . import confsampling
+from . import geometry
+from . import formalism
 
-from .puckepy import confsampling
-from .puckepy import formalism
-from .puckepy import geometry
+__all__ = []
 
-__all__ = ["confsampling", "formalism", "geometry"]
-
+__all__.extend(confsampling.__all__)
+__all__.extend(geometry.__all__)
+__all__.extend(formalism.__all__)

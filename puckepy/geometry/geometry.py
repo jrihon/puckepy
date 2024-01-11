@@ -1,12 +1,12 @@
 from puckepy import puckepy # this imports the puckepy.abi3.so binary
 
-
-
+from typing import TypeAlias
+Coordinates3D: TypeAlias = tuple[float, float, float]
 
 __all__ = ["dihedral", "bondangle", "bondlength"] 
-#
-#
-def dihedral(p0: list[float], p1: list[float], p2: list[float], p3: list[float]) -> float :
+
+
+def dihedral(p0: Coordinates3D, p1: Coordinates3D, p2: Coordinates3D, p3: Coordinates3D) -> float :
     """ Calculate the dihedral between four coordinate points
         --------------------
         A simple query can be made to calculate explicit coordinates :
@@ -24,7 +24,7 @@ def dihedral(p0: list[float], p1: list[float], p2: list[float], p3: list[float])
     """
     return puckepy.geometry.dihedral(p0, p1, p2, p3)
 
-def bondangle(p0: list[float], p1: list[float], p2: list[float])  :
+def bondangle(p0: Coordinates3D, p1: Coordinates3D, p2: Coordinates3D)  :
     """ Calculate the bondangle between three coordinate points
         --------------------
         A simple query can be made to calculate explicit coordinates :
@@ -41,7 +41,7 @@ def bondangle(p0: list[float], p1: list[float], p2: list[float])  :
     """
     return puckepy.geometry.bondangle(p0, p1, p2)
 
-def bondlength(p0: list[float], p1: list[float]) -> float :
+def bondlength(p0: Coordinates3D, p1: Coordinates3D) -> float :
     """ Calculate the bondlength between two coordinate points
         --------------------
         A simple query can be made to calculate explicit coordinates :

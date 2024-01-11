@@ -15,8 +15,8 @@ class Fivering :
 
         The extent of the range is : [-60, 60, `interval`]
         ---------------
-        self.nu1 : List[float]
-        self.nu3 : List[float]
+        self.nu1 : list[float]
+        self.nu3 : list[float]
 
         >>> fivering = Fivering(21) # Every 6 degrees
         >>> for nu1, nu3 in zip(fivering.nu1, fivering.nu3)
@@ -40,8 +40,8 @@ class Peptide :
 
         The extent of the range is : [0, 360, `interval`]
         ---------------
-        self.phi : List[float]
-        self.psi : List[float]
+        self.phi : list[float]
+        self.psi : list[float]
 
         >>> peptide = peptide(37) # Every 10 degrees
         >>> for phi, psi in zip(peptide.phi, peptide.psi)
@@ -61,9 +61,9 @@ class Sixring :
         Cremer-Pople globe with points and approximate the `amount` to an evenly
         distributed set of points.
         ---------------
-        self.alpha1 : List[float]
-        self.alpha2 : List[float]
-        self.alpha3 : List[float]
+        self.alpha1 : list[float]
+        self.alpha2 : list[float]
+        self.alpha3 : list[float]
 
         >>> sixring = sixring(631) # Generate 630 points
         >>> for a1, a2, a3 in zip(sixring.alpha1,sixring.alpha2, sixring.alpha3)

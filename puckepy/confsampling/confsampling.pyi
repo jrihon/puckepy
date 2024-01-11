@@ -1,46 +1,22 @@
-from typing import List
+
+__all__: list[str]
+
 
 class Fivering :
-    """ Construct a set of axis and torsions for sampling 
-        fivering space 
-        ---------------
-        @params: interval -> int
+    nu1: list[float]
+    nu3: list[float]
 
-        @output : Fivering
-        @attribute : nu1 : List[float]
-        @attribute : nu3 : List[float]
-    """
-    nu1 : List[float]
-    nu3 : List[float]
-    def __new__(cls, interval: int) -> None :  ...
-#        nu3 : List[float]
-    
+    def __new__(cls, interval: int) -> Fivering : ...
+
 class Peptide :
-    """ Construct a set of axis and torsions for sampling 
-        peptide space 
-        ---------------
-        @params: interval -> int
+    phi: list[float]
+    psi: list[float]
 
-        @output : Peptide
-        @attribute : phi : List[float]
-        @attribute : psi : List[float]
-    """
-    phi : List[float]
-    psi : List[float]
-    def __new__(cls, interval: int) -> None :  ...
+    def __new__(cls, interval: int) -> Peptide : ...
 
 class Sixring :
-    """ Construct a set of axis and torsions for sampling 
-        sixring space 
-        ---------------
-        @params: amount -> int
+    alpha1: list[float]
+    alpha2: list[float]
+    alpha3: list[float]
 
-        @output : Sixring
-        @attribute : alpha1 : List[float]
-        @attribute : alpha2 : List[float]
-        @attribute : alpha3 : List[float]
-    """
-    alpha1 : List[float]
-    alpha2 : List[float]
-    alpha3 : List[float]
-    def __new__(cls, amount: int) -> None : ...
+    def __new__(cls, amount: int) -> Sixring : ...

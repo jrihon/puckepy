@@ -6,7 +6,8 @@ use crate::geometry::molecule_ops::dihedral;
 use crate::formalism::{
     moleculefile::Pdb,
     PIS_IN_180,
-    search_atomname::FindString
+    search_atomname::FindString,
+//    inversion::fivering::invert_fivering,
 };
 
 const PIOVERFIVE: f64 = 0.628318530718;
@@ -69,6 +70,19 @@ impl AS {
 //       }
     }
 
+//    fn invert(&self) -> Vec<[f64;3]> {
+//        // let mut phase_angle = self.1 + 90.;
+//        // if phase_angle > 360. { 
+//        //     phase_angle -= 360.
+//        // }; => Original code
+//
+//        // If the value is larger than 360 after adding 90, it is already larger than 270
+//        // This means that we will do two operations, a +90 and then -360
+//        // This cuts out an instruction or two down the line
+//        let new_angle = self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. };
+//        invert_fivering(self.amplitude, new_angle)
+//
+//    }
 //    fn to_cp(&self) -> f64 {
 //        // let mut phase_angle = self.1 + 90.;
 //        // if phase_angle > 360. { 

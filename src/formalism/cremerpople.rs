@@ -16,6 +16,7 @@ use crate::formalism::inversion;
 // returns the correct one to the user.
 // Acts as an addition safety measure whenever users prompt incorrect amount of values in function
 // calls too
+// Only for internal usage in the backend
 enum MemberedRing {
     Five(CP5),
     Six(CP6)
@@ -24,8 +25,8 @@ enum MemberedRing {
 /// The CP tuple-struct holds the (amplitude, phase_angle) parameters
 #[pyclass(get_all)]
 pub struct CP5 {
-    pub amplitude: f64,
-    pub phase_angle: f64,
+    amplitude: f64,
+    phase_angle: f64,
 }
 
 #[pymethods]

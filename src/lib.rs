@@ -64,13 +64,6 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     form_module.add_function(wrap_pyfunction!(write_to_pdb, form_module)?)?;
     form_module.add_function(wrap_pyfunction!(write_to_xyz, form_module)?)?;
 
-//    // Add inversion from formalism to molecule to the public API
-//    let inv_module = PyModule::new(py, "inversion")?;
-//    inv_module.add_function(wrap_pyfunction!(sixring::invert_sixring, inv_module)?)?;
-//    inv_module.add_function(wrap_pyfunction!(fivering::invert_fivering, inv_module)?)?;
-//    inv_module.add_function(wrap_pyfunction!(write_to_pdb, inv_module)?)?;
-//    inv_module.add_function(wrap_pyfunction!(write_to_xyz, inv_module)?)?;
-
     // Append submodule to root module
     m.add_submodule(geom_sub_module)?;
     m.add_submodule(cs_module)?;

@@ -207,7 +207,7 @@ class AS:
             Returns the `amplitude` and `phase angle`
 
             >>> pdb = Pdb("adenosine.pdb")
-            >>> amplitude, phaseAngle = CP5().from_atomnames(pdb=pdb, query_names=["O4'", "C1'", "C2'", "C3'", "C4'"])
+            >>> amplitude, phaseAngle = AS().from_atomnames(pdb=pdb, query_names=["O4'", "C1'", "C2'", "C3'", "C4'"])
         """
 
         return self.from_atomnames(pdb, query_names)

@@ -291,6 +291,7 @@ pub fn write_to_pdb(fname: OsString,  array: Vec<[f64;3]>, resname: String) -> R
     if array.len() == 6 {
         atomnames.push("C5'");
         atomnumbs.push("6");
+        atomnames[0] = "O5'"; 
     };
 
     let mut buffer = File::create(fname).expect("Cannot open file!");

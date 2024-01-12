@@ -83,8 +83,8 @@ class CP5:
             ==
             Create a class to manipulate Cremer-Pople coordinates.
             ---------------
-            amplitude: float [ 0. <= amplitude <= 1. ]
-            phase_angle: float [ 0. <= phase_angle <= 360. ]
+            amplitude: float [ 0. <= amplitude <= 1. ] `radians`
+            phase_angle: float [ 0. <= phase_angle <= 360. ] `degrees`
             ---------------
             This class does not have public attributes
 
@@ -138,9 +138,9 @@ class CP6:
             ==
             Create a class to manipulate Cremer-Pople coordinates.
             ---------------
-            amplitude: float [ 0. <= amplitude <= 1. ]
-            phase_angle: float [ 0. <= phase_angle <= 360. ]
-            theta: float [ 0. <= theta <= 180. ]
+            amplitude: float [ 0. <= amplitude <= 1. ] `radians`
+            phase_angle: float [ 0. <= phase_angle <= 360. ] `degrees`
+            theta: float [ 0. <= theta <= 180. ] `degrees`
             ---------------
             This class does not have public attributes
 
@@ -193,8 +193,8 @@ class AS:
             ==
             Create a class to manipulate Altona-Sundaralingam coordinates.
             ---------------
-            amplitude: float [ 0. <= amplitude <= 1. ]
-            phase_angle: float [ 0. <= phase_angle <= 360. ]
+            amplitude: float [ 0. <= amplitude <= 1. ] `radians`
+            phase_angle: float [ 0. <= phase_angle <= 360. ] `degrees`
 
             >>> altsun = AS(0.35, 18.) # => C3' Endo
         """

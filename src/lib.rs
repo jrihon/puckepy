@@ -9,9 +9,9 @@ use geometry::molecule_ops::{
 
 mod conf_sampling;
 use conf_sampling::{
-    peptide::Peptide,
-    fivering::Fivering,
-    sixring::Sixring,
+    peptide::{Peptide, PeptideAxes},
+    fivering::{Fivering, FiveringAxes},
+    sixring::{Sixring, SixringAxes},
 };
 
 mod formalism;
@@ -25,14 +25,6 @@ use formalism::{
                    write_to_xyz
                     },
 };
-
-//mod inversion;
-//use inversion::{
-//    sixring,
-//    fivering,
-//    write_file::{write_to_pdb, write_to_xyz},
-//};
-
 
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
@@ -50,8 +42,11 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     // Add conformational sampling methods to the public API
     let cs_module = PyModule::new(py, "confsampling")?;
     cs_module.add_class::<Peptide>()?;
+    cs_module.add_class::<PeptideAxes>()?;
     cs_module.add_class::<Fivering>()?;
+    cs_module.add_class::<FiveringAxes>()?;
     cs_module.add_class::<Sixring>()?;
+    cs_module.add_class::<SixringAxes>()?;
 
     // Add formalisms to the public API
     let form_module = PyModule::new(py, "formalism")?;

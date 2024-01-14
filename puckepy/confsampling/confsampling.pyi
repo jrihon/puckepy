@@ -20,3 +20,23 @@ class Sixring :
     alpha3: list[float]
 
     def __new__(cls, amount: int) -> Sixring : ...
+
+class FiveringAxes :
+    zx: list[float]
+    zy: list[float]
+
+    def __new__(cls, interval: int) -> FiveringAxes : ...
+
+class PeptideAxes :
+    x: list[float]
+    y: list[float]
+
+    def __new__(cls, interval: int) -> PeptideAxes : ...
+
+class SixringAxes :
+    rho: int
+    theta: list[float]
+    phi: list[float]
+
+    def __new__(cls, amount: int) -> SixringAxes : ...
+

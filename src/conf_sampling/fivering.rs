@@ -21,7 +21,7 @@ impl Fivering {
     fn new(num: u16) -> Self {
         
         // Derive torsion angles from the given axes
-        let polars = FiveringAxes::new(num as usize);
+        let polars = FAxes::new(num as usize);
 
         // Setup variable
         let amount : u16 = num * num;
@@ -61,16 +61,61 @@ impl Fivering {
 pub struct FiveringAxes {
     zx : Vec<f64>,
     zy : Vec<f64>,
+}
 
+#[pymethods]
+impl FiveringAxes {
+
+    #[new]
+    fn new(num: u16) -> Self {
+
+        // Derive torsion angles from the given axes
+        let polars = FAxes::new(num as usize);
+
+        // Setup variable
+        let amount : u16 = num * num;
+        let num_f64 : f64 = num as f64;
+
+        // Instance Fivering struct
+        let mut zx: Vec<f64> = Vec::with_capacity(amount as usize);
+        let mut zy: Vec<f64> = Vec::with_capacity(amount as usize);
+        let mut x : f64;
+        let mut y : f64;
+
+        for i in 0..amount as usize {
+            // Calculate indexes for the array axises
+            x = (i as f64 / num_f64).floor(); // X axis, returns with floor
+            y = i as f64 % num_f64; // Y axis, return with modulo
+
+            // fill out the array
+            zx.push(polars.zx[x as usize]);
+            zy.push(polars.zy[y as usize]);
+        }
+
+        // Make values ORCA-ready
+        Self {
+            zx,
+            zy
+        }
+        
+    }
+    
+}
+
+
+
+struct FAxes {
+    zx : Vec<f64>,
+    zy : Vec<f64>,
 }
 
 // Do not make the methods available to the user 
 // We only return the FiveringAxes to the user to allow them to use the attributes it hold.
 // The module has no purpose in allowing the user to generate their own Fivering Class
-impl FiveringAxes {
-    // Initialise the struct with a near-empty array
-    fn new(num: usize) -> FiveringAxes {
-        FiveringAxes {
+impl FAxes {
+
+    fn new(num: usize) -> FAxes {
+        FAxes {
             zx: Array1::linspace(-60., 60., num).into_raw_vec(),
             zy: Array1::linspace(-60., 60., num).into_raw_vec(),
         }

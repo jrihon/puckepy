@@ -27,9 +27,9 @@ impl Sixring {
 
     #[new]
     pub fn new(amount : usize) -> Self {
-        let (sphere_size, corrected_amount) = equidistance_sphere(amount as u16);
+        let (globe_points, corrected_amount) = equidistance_sphere(amount as u16);
 
-        let zj = cremerpople_evelation(&sphere_size, corrected_amount);
+        let zj = cremerpople_evelation(&globe_points, corrected_amount);
 
         let projection = zj.projection_and_partition(corrected_amount);
 
@@ -57,21 +57,59 @@ impl Sixring {
 
     }
 }
+
+#[pyclass(get_all)]
+pub struct SixringAxes {
+    pub rho : f64,
+    pub theta : Vec<f64>,
+    pub phi : Vec<f64>,
+}
+
+#[pymethods]
+impl SixringAxes {
+
+    #[new]
+    fn new(amount : usize) -> Self {
+
+        let (globe_points, corrected_amount) = equidistance_sphere(amount as u16);
+        let mut theta_vec: Vec<f64> = Vec::with_capacity(corrected_amount);
+        let mut phi_vec: Vec<f64> = Vec::with_capacity(corrected_amount);
+
+        let mut idx_theta: usize = 0;
+        for i in 0..corrected_amount { 
+            if (globe_points.phi[i] == 0.0) && i != 0 {
+                idx_theta += 1 
+            };
+
+            theta_vec.push(globe_points.theta[idx_theta]);
+            phi_vec.push(globe_points.phi[i]);
+        }
+        
+        Self {
+            rho: globe_points.rho,
+            theta: theta_vec,
+            phi: phi_vec,
+        }
+    }
+}
+
+
+
 /// The axes to iterate over for sixring molecules : 
 /// public `rho` field : f64 . Standard value of 0.67
 /// public `theta` field : Array1<f64>. [0, pi] or [0, 180]
 /// public `phi` field : Array1<f64>. [0, 2pi] or [0, 360]
-pub struct SixringAxes {
+struct SAxes {
     pub rho : f64,
     pub theta : Array1<f64>,
     pub phi : Array1<f64>,
 }
 
 
-impl SixringAxes {
-    pub fn new(m_theta : usize, rho: f64, amount: usize) -> SixringAxes {
-        SixringAxes {
-            rho, // shorthand initialisation
+impl SAxes {
+    pub fn new(m_theta : usize, rho: f64, amount: usize) -> Self {
+        Self {
+            rho, 
             theta : Array1::<f64>::zeros(m_theta),
             phi : Array1::<f64>::zeros(amount),
         }
@@ -86,9 +124,9 @@ impl SixringAxes {
 /// Cremer-Pople sphere, where every point represents a specific conformation
 ///
 ///
-fn equidistance_sphere(amount : u16 ) -> (SixringAxes, usize) {
+fn equidistance_sphere(amount : u16 ) -> (SAxes, usize) {
     // Set a value as surface area / points
-    let corrected_amount: f64 = corrected_amount_of_points(amount as f64);
+    let corrected_amount: f64 = corrected_amount_by_sphere_radius(amount as f64);
     let a: f64 = ( 4. * PI * RHO.powi(2)) / corrected_amount;
 
     let mut idx : u32 = 0; // indexing the arrays
@@ -104,7 +142,7 @@ fn equidistance_sphere(amount : u16 ) -> (SixringAxes, usize) {
     let d_phi: f64 = a / d_theta;
 
     let amount_sizeof: usize = corrected_amount_to_size_up_arrays(m_theta, d_phi);
-    let mut globe = SixringAxes::new(m_theta as usize, RHO, amount_sizeof as usize);
+    let mut globe = SAxes::new(m_theta as usize, RHO, amount_sizeof as usize);
 
     for m in 0..m_theta as u32 {
         globe.theta[m as usize] = (PI * (m as f64 + 0.5)) / m_theta;
@@ -142,7 +180,7 @@ fn corrected_amount_to_size_up_arrays(m_theta : f64, d_phi : f64) -> usize {
 /// 
 /// What we need is the ratio of the surface are at rho(0.67) and rho(1.00)
 /// --> (0.67^2 * PI * 4) / (1.00^2 * PI * 4) => 0.67^2
-fn corrected_amount_of_points(num : f64) -> f64 {
+fn corrected_amount_by_sphere_radius(num : f64) -> f64 {
     num * RHO.powi(2)
 }
 
@@ -151,7 +189,7 @@ fn corrected_amount_of_points(num : f64) -> f64 {
 /// Calculate the local elevation z_j for the Cremer-Pople coordinate prompted 
 ///
 ///
-fn cremerpople_evelation(sphere : &SixringAxes, amount: usize) -> Array2<f64> {
+fn cremerpople_evelation(sphere : &SAxes, amount: usize) -> Array2<f64> {
     // spherical coordinates are by default in radians
 
     // 6 atomic elevations (Z_j) for any set of (r, theta, phi)

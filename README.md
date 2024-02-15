@@ -2,9 +2,9 @@
 
 A library to describe and characterise molecules, `written in Rust btw`
 
-- `formalism` to describe molecules quantitatively through various puckering formalisms
-- `confsampling` to provide the functionality from [pucke.rs](https://github.com/jrihon/puckers) in `Python`
-- `geometry` to describe molecules by elementary geometrical attributes
+- `puckepy.formalism` to describe molecules quantitatively through various puckering formalisms
+- `puckepy.confsampling` to provide the functionality from [pucke.rs](https://github.com/jrihon/puckers) in `Python`
+- `puckepy.geometry` to describe molecules by elementary geometrical attributes
 
 ## Documentation
 - Online documentation can be find [here](https://github.com/jrihon/puckepy/blob/main/docs/documentation.rst) !

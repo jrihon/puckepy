@@ -43,8 +43,7 @@ fn local_elevation(rho : f64, phi2: f64, theta: f64) -> [f64;6] {
 
     }).collect::<Vec<f64>>()
       .try_into().unwrap() // we are certain that it will collect into a [f64;6] as both arrays
-                           // are of the same size. This function is not available as public
-
+                           // are of the same size.
 }
 
 // Store ring partitioning in the struct

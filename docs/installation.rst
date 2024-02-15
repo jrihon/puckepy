@@ -1,4 +1,4 @@
-# Installation
+Installation
 ==============
 
 
@@ -13,10 +13,7 @@ Install **Rust**
     $ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 Install **conda**
-:: 
-
-    Go to conda_ website.
-
+Go to conda_ website.
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/install/linux.html
 
 

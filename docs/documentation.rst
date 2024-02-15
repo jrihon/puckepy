@@ -1,11 +1,11 @@
-# Documentation
+Documentation
 ===============
 
 
 Conformational sampling
 -----------------------
 Sampling of the **Peptide** space
-.. codeblock::python 
+
    >>>  from puckepy.confsampling import Peptide, PeptideAxes
    >>>  pepspace = Peptide(37)
    >>>  for phi, psi in zip(pepspace.phi, pepspace.psi): 
@@ -16,7 +16,7 @@ Sampling of the **Peptide** space
    >>>      print(x, y)
 
 Sampling of the **Fivering** space
-.. codeblock::python 
+
    >>>  from puckepy.confsampling import Fivering, FiveringAxes
    >>>  fivespace = Fivering(21)
    >>>  for nu1, nu3 in zip(fivespace.nu1, fivespace.nu3): 
@@ -27,7 +27,7 @@ Sampling of the **Fivering** space
    >>>      print(zx, zy)
 
 Sampling of the **Sixring** space
-.. codeblock::python 
+
    >>>  from puckepy.confsampling import Sixring, SixringAxes
    >>>  sixspace = Sixring(21)
    >>>  for a1, a2, a3 in zip(sixspace.alpha1, sixspace.alpha2, sixspace.alpha3): 
@@ -40,7 +40,7 @@ Sampling of the **Sixring** space
 Puckering formalism
 -----------------------
 Calculating the pucker coordinates of a **fivering** by the **Cremer-Pople** formalism, from a **pdb** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Pdb, CP5
    >>> pdb = Pdb("./fivering_3endo.pdb")
    >>> pdb.parse()
@@ -51,7 +51,7 @@ Calculating the pucker coordinates of a **fivering** by the **Cremer-Pople** for
    0.352266 85.6
 
 Calculating the pucker coordinates of a **fivering** by the **Cremer-Pople** formalism, from a **xyz** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Xyz, CP5
    >>> xyz = Xyz("./fivering_3endo.xyz")
    >>> amplitude, phaseangle = CP5().from_indices(coordinates=xyz,
@@ -61,7 +61,7 @@ Calculating the pucker coordinates of a **fivering** by the **Cremer-Pople** for
    0.352266 85.6
 
 Calculating the pucker coordinates of a **fivering** by the **Altona-Sundaralingam** formalism, from a **xyz** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Xyz, AS
    >>> xyz = Xyz("./fivering_3endo.xyz")
    >>> amplitude, phaseangle = AS().from_indices(coordinates=xyz,
@@ -72,7 +72,7 @@ Calculating the pucker coordinates of a **fivering** by the **Altona-Sundaraling
 
 
 Calculating the pucker coordinates of a **sixring** by the **Altona-Sundaralingam** formalism, from a **pdb** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Pdb, CP6
    >>> pdb = Pdb("./sixring_chair.pdb")
    >>> amplitude, phaseangle, theta = CP6().from_atomnames(pdb=pdb,
@@ -82,7 +82,7 @@ Calculating the pucker coordinates of a **sixring** by the **Altona-Sundaralinga
    0.6587 120.7 1.2
 
 Calculating the pucker coordinates of a **sixring** by the **Strauss-Pickett** formalism, from a **pdb** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Pdb, CP6
    >>> pdb = Pdb("./sixring_chair.pdb")
    >>> alphas, betas = SP().from_atomnames(pdb=pdb,
@@ -93,7 +93,7 @@ Calculating the pucker coordinates of a **sixring** by the **Strauss-Pickett** f
 
 
 Calculating the pucker coordinates of a **duplex of fivering residues** by the **Cremer-Pople** formalism, from a **pdb** formatted file
-.. codeblock::python 
+
    >>> from puckepy.formalism import Pdb, CP5
    >>> listOfPdb = Pdb("./fivering_3endo.pdb").parse_by_monomers()
    >>> for pdbMonomer in listOfPdb :
@@ -108,7 +108,7 @@ Calculating the pucker coordinates of a **duplex of fivering residues** by the *
 Invert puckering coordinates
 ----------------------------
 Inverting **Cremer-Pople** coordinates of a **five-membered ring** to its molecular structure
-.. codeblock::python 
+
     >>> from puckepy import formalism
     >>> cp5 = formalism.CP5(0.35, 90.)
     >>> inversion = cp5.invert()
@@ -116,7 +116,7 @@ Inverting **Cremer-Pople** coordinates of a **five-membered ring** to its molecu
     >>> formalism.write_to_pdb("inverted_fivering", inversion, "FIV")
 
 Inverting **Cremer-Pople** coordinates of a **six-membered ring** to its molecular structure
-.. codeblock::python 
+
     >>> from puckepy import formalism
     >>> cp6 = formalism.CP6(0.67, 120., 1.5)
     >>> inversion = cp6.invert()
@@ -126,7 +126,7 @@ Inverting **Cremer-Pople** coordinates of a **six-membered ring** to its molecul
 Basic geometry operations
 -------------------------
 Calculate **geometry** properties of the **desired molecule**
-.. codeblock::python 
+
     >>> from puckepy.formalism import Xyz
     >>> from puckepy import geometry
     >>> coordinates = Xyz("fivering_3endo.xyz").parse()
@@ -135,7 +135,7 @@ Calculate **geometry** properties of the **desired molecule**
     >>> bondlength = geometry.bondlength(coordinates[10], coordinates[11])
 
 Calculate **geometry** properties from **arbitrary data**
-.. codeblock::python 
+
     >>> from puckepy import geometry
     >>> dihedral = geometry.dihedral([2.23, 0.23, 1.], [3.23, -0.23, 1.], [5.76, 0.01, 2.69], [0.25, 3.44 , 1.93])
     >>> bondangle = geometry.bondangle([2.23, 0.23, 1.], [3.23, -0.23, 1.], [5.76, 0.01, 2.69])

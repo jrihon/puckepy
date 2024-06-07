@@ -30,6 +30,10 @@ pub type Coordinate = [f64; 3];
 //
 
 #[pyfunction]
+/// Returns the angle of the dihedral in `degrees`
+/// Calculate the dihedral between four Coordinate points
+/// A dihedral is an angle between four points.
+/// Returns a value in degrees [-180. -> 180.]
 pub fn dihedral(p0 : Coordinate, p1 : Coordinate, p2 : Coordinate, p3 : Coordinate) -> f64 {
     let b0 = p0.subtract_arr(&p1);
     let b1 = p2.subtract_arr(&p1).normalise_vector(); // do not let magnitude affect subsequent operations

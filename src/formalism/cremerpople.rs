@@ -68,35 +68,18 @@ impl CP5 {
     // Calculate Cremer-Pople formalism by prompted indices
     fn from_indices(&self, coord_array : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
         
-        let mut molarray: Vec<[f64; 3]> = vec![];
+        let mut molarray: Vec<[f64; 3]>  = indices.iter().map(|i| coord_array[*i]).collect();
 
-        for idx in indices {
-            molarray.push(coord_array[idx])
-        }
-
-       match cremer_pople(&mut molarray) {
+        match cremer_pople(&mut molarray) {
            MemberedRing::Five(cp) => (cp.amplitude, cp.phase_angle),
            _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
-       }
+        }
     }
     
     fn invert(&self) -> [[f64;3]; 5] {
         inversion::fivering::invert_fivering(self.amplitude, self.phase_angle)
     }
 
-//    fn to_as_angle(&self) -> f64 {
-//        // let mut phase_angle = self.1 - 90.;
-//        // if phase_angle < 0. { 
-//        //     phase_angle += 360.
-//        // }; => Original code
-//
-//        // If the value is smaller than 0 after decreasing 90, it is already smaller than 90
-//        // This means that we will do two operations, a -90 and then +360
-//        // This cuts out an operation or two down the line
-//        if self.phase_angle < 90. { self.phase_angle + 270. } else { self.phase_angle - 90. }
-//
-//    }
-    
 }
 
 

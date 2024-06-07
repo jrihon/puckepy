@@ -98,7 +98,7 @@ Calculating the pucker coordinates of a **duplex of fivering residues** by the *
    >>> listOfPdb = Pdb("./fivering_3endo.pdb").parse_by_monomers()
    >>> for pdbMonomer in listOfPdb :
    >>>     amplitude, phaseangle = CP5().from_atomnames(pdb=pdbMonomer,
-   >>>                                                  query_names=["O4'","C1'", "C2'", "C3'", "C5'"]
+   >>>                                                  query_names=["O4'","C1'", "C2'", "C3'", "C4'"]
    >>>     print(amplitude, phaseangle)
    0.352266 85.6
    0.368456 87.1

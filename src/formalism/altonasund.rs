@@ -1,3 +1,4 @@
+#![allow(unused)]
 use std::f64::consts::PI;
 use pyo3::{pymethods, pyclass};
 
@@ -70,31 +71,6 @@ impl AS {
 //       }
     }
 
-//    fn invert(&self) -> Vec<[f64;3]> {
-//        // let mut phase_angle = self.1 + 90.;
-//        // if phase_angle > 360. { 
-//        //     phase_angle -= 360.
-//        // }; => Original code
-//
-//        // If the value is larger than 360 after adding 90, it is already larger than 270
-//        // This means that we will do two operations, a +90 and then -360
-//        // This cuts out an instruction or two down the line
-//        let new_angle = self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. };
-//        invert_fivering(self.amplitude, new_angle)
-//
-//    }
-//    fn to_cp(&self) -> f64 {
-//        // let mut phase_angle = self.1 + 90.;
-//        // if phase_angle > 360. { 
-//        //     phase_angle -= 360.
-//        // }; => Original code
-//
-//        // If the value is larger than 360 after adding 90, it is already larger than 270
-//        // This means that we will do two operations, a +90 and then -360
-//        // This cuts out an instruction or two down the line
-//        if self.phase_angle > 270. { self.phase_angle - 270. } else { self.phase_angle + 90. }
-//
-//    }
 }
 
 
@@ -104,10 +80,14 @@ impl AS {
 /// (b) For abbreviated nomenclature see M. Sundaralingam, J. A". Chem. SOC.,93, 6644 (1971). and references therein.
 
 // tan(P) = (theta2 + theta4 - theta1 - theta3 ) / (2 * theta0 * (sin36° + sin72°))
+// tan(P) = (nu4 + nu1 - nu3 - nu0 ) / (2 * nu2 * (sin36° + sin72°))
 // theta_M = theta0 / cos(P)
 // altona sundaralingam
-// Where P => phase angle (expressed in degrees);  tau_M => amplitude of pucker (expressed in degrees)
-// Who the fuck thought that amplitude should be expressed in degrees and not in radians?
+// The AS formalism is both the dumbest and the mathmetically most inconsistent formula.
+//  The torsion angles are in degrees and [-180 -> 180] ... who calculates with that????
+//
+// Also, who the frick thought that amplitude should be expressed in degrees and not in radians?
+//
 // Note that : 
 // theta2 = nu0
 // theta3 = nu1
@@ -115,48 +95,35 @@ impl AS {
 // theta0 = nu3
 // theta1 = nu4
 // Here, we will assume that we start from O4' -> C1' -> C2' -> C3' -> C4', like CP
-//     While AS assumes C2' -> C3' -> C4' -> O4' -> C1'  
+//     Instead of AS's assumption of C2' -> C3' -> C4' -> O4' -> C1'  
 // 
 // Function courtesy of Cpptraj Github : https://github.com/Amber-MD/cpptraj/blob/master/src/TorsionRoutines.cpp
 fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> (f64, f64) {
     
-    let theta4 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]);
-    let theta0 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]);
-    let theta1 = dihedral(coordinates[2], coordinates[3], coordinates[4], coordinates[0]);
-    let theta2 = dihedral(coordinates[3], coordinates[4], coordinates[0], coordinates[1]);
-    let theta3 = dihedral(coordinates[4], coordinates[0], coordinates[1], coordinates[2]);
-//    println!("{}, {}, {}, {}, {}", theta0, theta1, theta2, theta3, theta4);
+    //  we follow the order of O4' - C1' - C2' - C3' - C4' when the atoms are being passed to the function
+    //  NB: cpptraj follows  C1' - C2' - C3' - C4' - O4' when the atoms are being passed to the function
+    let nu0 = dihedral(coordinates[4], coordinates[0], coordinates[1], coordinates[2]); // nu0 -> theta3 -> v4
+    let nu1 = dihedral(coordinates[0], coordinates[1], coordinates[2], coordinates[3]); // nu1 -> theta4 -> v5
+    let nu2 = dihedral(coordinates[1], coordinates[2], coordinates[3], coordinates[4]); // nu2 -> theta0 -> v1
+    let nu3 = dihedral(coordinates[2], coordinates[3], coordinates[4], coordinates[0]); // nu3 -> theta1 -> v2
+    let nu4 = dihedral(coordinates[3], coordinates[4], coordinates[0], coordinates[1]); // nu4 -> theta2 -> v3
 
-    let a = (theta0 + // theta0 + cos(0.) == theta0
-             (theta1 * (4. * PIOVERFIVE).cos()) +
-             (theta2 * (8. * PIOVERFIVE).cos()) +
-             (theta3 * (12. * PIOVERFIVE).cos()) +
-             (theta4 * (16. * PIOVERFIVE).cos())) * 0.4;
+    // this part is courtesy of the AS_Pucker() function in https://github.com/Amber-MD/cpptraj/blob/master/src/TorsionRoutines.cpp 
+    let a = ((nu2 + 1. ) +// nu0 + cos(1.) == nu0 + 1
+             (nu3 * (4. * PIOVERFIVE).cos()) +
+             (nu4 * (8. * PIOVERFIVE).cos()) +
+             (nu0 * (12. * PIOVERFIVE).cos()) +
+             (nu1 * (16. * PIOVERFIVE).cos())) * 0.4;
 
-    let b = ((theta0 + 1.) + // theta0 + sin(0.) == theta0 + 1
-             (theta1 * (4. * PIOVERFIVE).sin()) +
-             (theta2 * (8. * PIOVERFIVE).sin()) +
-             (theta3 * (12. * PIOVERFIVE).sin()) +
-             (theta4 * (16. * PIOVERFIVE).sin())) * -0.4;
+    let b =  (nu2 + // nu0 + sin(0.) == nu0 + 0
+             (nu3 * (4. * PIOVERFIVE).sin()) +
+             (nu4 * (8. * PIOVERFIVE).sin()) +
+             (nu0 * (12. * PIOVERFIVE).sin()) +
+             (nu1 * (16. * PIOVERFIVE).sin())) * -0.4;
 
-    let amplitude = ((a * a) + (b * b)).sqrt().to_radians() * 0.65_f64 ;
-    let mut phase_angle = ((theta2 + theta4) - (theta1 + theta3)).atan2(2. * theta0 * ((36_f64.to_radians().sin() + 72_f64.to_radians().sin())));
+    let amplitude = ((a * a) + (b * b)).sqrt().to_radians() ;
 
-    // if the amplitude is roughly equal to 0.0 , then that means that the conformer has all 
-    // five atoms in the same plane. This makes the phase_angle undefined and therefore we 
-    // equate it to 0.0
-//    let mut phase_angle = 0.;
-//    if amplitude > 0.0 || amplitude < 0.0 {
-//        phase_angle = b.atan2(a)
-//    }
-
-    phase_angle += PI; 
-//
-    if phase_angle < 0.0 {
-        phase_angle += TWOPI; 
-    }
-
-    phase_angle *= PIS_IN_180; // to_degrees()
-
+    // swap thetas for nus
+    let phase_angle = (nu4 + nu1 - nu3 - nu0 ).atan2(2. * nu2 * (PIOVERFIVE.sin() + (PIOVERFIVE * 2.).sin())).to_degrees();
     (amplitude, phase_angle)
 }

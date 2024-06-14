@@ -25,15 +25,15 @@ class Pdb:
         """
         return puckepy.formalism.Pdb(filename)
 
-    def parse(self) -> None : 
+    def parse(self) -> puckepy.formalism.Pdb : 
         """ Parses the queried `monomer` Pdb file to populates the attributes.
 
             The method mutates the object in place
 
             >>> pdb = Pdb("molecule.pdb")
-            >>> pdb.parse()
+            >>> pdbContent = pdb.parse()
         """
-        self.parse()
+        return self.parse()
 
     def parse_by_monomers(self) -> list[puckepy.formalism.Pdb] : 
         """ Parses the queried `duplex` Pdb file to populates the attributes.
@@ -71,7 +71,7 @@ class Xyz:
             Returns the coordinates of the queried `xyz` file
 
             >>> xyz = Xyz(filename)
-            >>> xyz_coordinates = xyz.parse()
+            >>> xyzCoordinates = xyz.parse()
         """ 
         return self.parse()
 

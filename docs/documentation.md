@@ -45,10 +45,9 @@ for theta, phi in zip(sixaxes.theta, sixaxes.phi):
 ### Calculating the pucker coordinates of a *five-membered ring* by the *Cremer-Pople* formalism, from a *pdb* formatted file
 ```python
 from puckepy.formalism import Pdb, CP5
-pdb = Pdb("./fivering_3endo.pdb")
-pdb.parse()
+pdb = Pdb("./fivering_3endo.pdb").parse()
 amplitude, phaseangle = CP5().from_atomnames(pdb=pdb,
-                                             query_names=["O4'","C1'", "C2'", "C3'", "C5'"]
+                                             query_names=["O4'","C1'", "C2'", "C3'", "C4'"]
                                              )
 print(amplitude, phaseangle)
 >>>  0.352266 85.6
@@ -57,7 +56,7 @@ print(amplitude, phaseangle)
 ### Calculating the pucker coordinates of a *five-membered ring* by the *Cremer-Pople* formalism, from a *xyz* formatted file
 ```python
 from puckepy.formalism import Xyz, CP5
-xyz = Xyz("./fivering_3endo.xyz")
+xyz = Xyz("./fivering_3endo.xyz").parse()
 amplitude, phaseangle = CP5().from_indices(coordinates=xyz,
                                              indices=[8, 9, 28, 26, 6]
                                              )
@@ -68,7 +67,7 @@ print(amplitude, phaseangle)
 ### Calculating the pucker coordinates of a *five-membered ring* by the *Altona-Sundaralingam* formalism, from a *xyz* formatted file
 ```python
 from puckepy.formalism import Xyz, AS
-xyz = Xyz("./fivering_3endo.xyz")
+xyz = Xyz("./fivering_3endo.xyz").parse()
 amplitude, phaseangle = AS().from_indices(coordinates=xyz,
                                              indices=[8, 9, 28, 26, 6]
                                              )
@@ -79,7 +78,7 @@ print(amplitude, phaseangle)
 ### Calculating the pucker coordinates of a *six-membered ring* by the *Altona-Sundaralingam* formalism, from a *pdb* formatted file
 ```python
 from puckepy.formalism import Pdb, CP6
-pdb = Pdb("./sixring_chair.pdb")
+pdb = Pdb("./sixring_chair.pdb").parse()
 amplitude, phaseangle, theta = CP6().from_atomnames(pdb=pdb,
                                              query_names=["O5'","C1'", "C2'", "C3'", "C4'", "C5'"]
                                              )
@@ -89,7 +88,7 @@ print(amplitude, phaseangle, theta)
 ### Calculating the pucker coordinates of a *six-membered ring* by the *Strauss-Pickett* formalism, from a *pdb* formatted file
 ```python
 from puckepy.formalism import Pdb, CP6
-pdb = Pdb("./sixring_chair.pdb")
+pdb = Pdb("./sixring_chair.pdb").parse()
 alphas, betas = SP().from_atomnames(pdb=pdb,
                                     query_names=["O5'","C1'", "C2'", "C3'", "C4'", "C5'"]
                                     )

@@ -89,7 +89,7 @@ impl Pdb {
         })
     }
 
-    fn parse(&mut self) {
+    fn parse(&self) -> Pdb {
 
         if self.atomnames.len() > 0 || self.coordinates.len() > 0 {
             panic!("This Pdb object has already been populated. Will not parse again.")
@@ -108,8 +108,11 @@ impl Pdb {
             }
         };
         
-        self.coordinates = coordinates;
-        self.atomnames = atomnames;
+        Pdb { 
+            data: self.data.to_string(),
+            coordinates,
+            atomnames,
+        }
     }
 
 

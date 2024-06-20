@@ -31,16 +31,22 @@ use formalism::{
 /// import the module.
 /// This is the name of the module
 #[pymodule]
-fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
+fn puckepy(m: &Bound<'_, PyModule>) -> PyResult<()> {
+//fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
+    register_child_modules(m)?;
+    Ok(())
+}
 
+fn register_child_modules(parent_module: &Bound<'_, PyModule>) -> PyResult<()> {
+    //
     // Add geometry functions to the public API
-    let geom_sub_module = PyModule::new(py, "geometry")?;
-    geom_sub_module.add_function(wrap_pyfunction!(dihedral, geom_sub_module)?)?;
-    geom_sub_module.add_function(wrap_pyfunction!(bondangle, geom_sub_module)?)?;
-    geom_sub_module.add_function(wrap_pyfunction!(bondlength, geom_sub_module)?)?;
+    let geom_sub_module = PyModule::new_bound(parent_module.py(), "geometry")?;
+    geom_sub_module.add_function(wrap_pyfunction!(dihedral, &geom_sub_module)?)?;
+    geom_sub_module.add_function(wrap_pyfunction!(bondangle, &geom_sub_module)?)?;
+    geom_sub_module.add_function(wrap_pyfunction!(bondlength, &geom_sub_module)?)?;
 
     // Add conformational sampling methods to the public API
-    let cs_module = PyModule::new(py, "confsampling")?;
+    let cs_module = PyModule::new_bound(parent_module.py(), "confsampling")?;
     cs_module.add_class::<Peptide>()?;
     cs_module.add_class::<PeptideAxes>()?;
     cs_module.add_class::<Fivering>()?;
@@ -49,21 +55,20 @@ fn puckepy(py: Python, m: &PyModule) -> PyResult<()> {
     cs_module.add_class::<SixringAxes>()?;
 
     // Add formalisms to the public API
-    let form_module = PyModule::new(py, "formalism")?;
+    let form_module = PyModule::new_bound(parent_module.py(), "formalism")?;
     form_module.add_class::<CP5>()?;
     form_module.add_class::<CP6>()?;
     form_module.add_class::<AS>()?;
     form_module.add_class::<SP>()?;
     form_module.add_class::<Pdb>()?;
     form_module.add_class::<Xyz>()?;
-    form_module.add_function(wrap_pyfunction!(write_to_pdb, form_module)?)?;
-    form_module.add_function(wrap_pyfunction!(write_to_xyz, form_module)?)?;
+    form_module.add_function(wrap_pyfunction!(write_to_pdb, &form_module)?)?;
+    form_module.add_function(wrap_pyfunction!(write_to_xyz, &form_module)?)?;
 
     // Append submodule to root module
-    m.add_submodule(geom_sub_module)?;
-    m.add_submodule(cs_module)?;
-    m.add_submodule(form_module)?;
-//    m.add_submodule(inv_module)?;
+    parent_module.add_submodule(&geom_sub_module)?;
+    parent_module.add_submodule(&cs_module)?;
+    parent_module.add_submodule(&form_module)?;
     Ok(())
 
 }

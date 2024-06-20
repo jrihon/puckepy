@@ -1,7 +1,13 @@
 [package]
 name = "puckepy"
-version = "0.1.0"
+version = "0.7.0"
 edition = "2021"
+description = "Python module for conformational sampling research on small molecules"
+authors = ["Jérôme Rihon <jeromerihon@gmail.com>"]
+readme = "README.md" 
+repository = "https://github.com/jrihon/puckepy"
+homepage = "https://github.com/jrihon/puckepy"
+rust-version = "1.79"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]
@@ -10,11 +16,11 @@ name = "puckepy"
 crate-type = ["cdylib"]
 
 [dependencies]
-nalgebra = "0.31.3"
+nalgebra = "0.32.6"
 ndarray = "0.15.6"
 assert_float_eq = "1"
 
 [dependencies.pyo3]
-version = "0.20.0"
+version = "0.21.2"
 # "abi3-py38" tells pyo3 (and maturin) to build using the stable ABI with minimum Python version 3.8
 features = ["abi3-py38"]

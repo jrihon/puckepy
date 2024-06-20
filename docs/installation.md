@@ -1,6 +1,7 @@
 # Installation
 
-## Pip install
+`Puckepy` requires Python version >= 3.8
+## Pip install (Work In Progress)
 
 Will be published to pip once the article is out
 

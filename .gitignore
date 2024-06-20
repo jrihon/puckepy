@@ -9,3 +9,5 @@
 /puckepy/formalism/__pycache__/
 /puckepy/geometry/__pycache__/
 /.venv/
+/docs/installation.rst
+/docs/documentation.rst

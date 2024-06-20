@@ -124,6 +124,9 @@ fn altona_sundaralingam(coordinates: &Vec<[f64;3]>) -> (f64, f64) {
     let amplitude = ((a * a) + (b * b)).sqrt().to_radians() ;
 
     // swap thetas for nus
-    let phase_angle = (nu4 + nu1 - nu3 - nu0 ).atan2(2. * nu2 * (PIOVERFIVE.sin() + (PIOVERFIVE * 2.).sin())).to_degrees();
+    let mut phase_angle = (nu4 + nu1 - nu3 - nu0 ).atan2(2. * nu2 * (PIOVERFIVE.sin() + (PIOVERFIVE * 2.).sin())).to_degrees();
+
+    if phase_angle < 0. { phase_angle += 360. };
+
     (amplitude, phase_angle)
 }

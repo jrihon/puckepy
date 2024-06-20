@@ -9,7 +9,7 @@ A library to describe and characterise molecules, `written in Rust btw`
 ## Documentation
 - Online documentation can be found [here](https://github.com/jrihon/puckepy/blob/main/docs/documentation.md) !
 
-- The repository has been annotated with python stubs `.pyi` and should autocomplete with the proper `Language Server Protocol (LSP)`. This also allows for the `LSP` to show documentation when calling classes and methods, when using `puckepy` in your preferred text editor.
+- The Python library has been annotated with python stub files `.pyi`. This allows `definition on hover` functionality, useful for reading docstrings while writing in your preferred editor.
 
 ## Installation
 - Installation protocol can be found [here](https://github.com/jrihon/puckepy/blob/main/docs/installation.md) !

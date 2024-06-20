@@ -1,9 +1,29 @@
 # Documentation
 
+## Modules
+```python
+from puckepy.confsampling import Peptide, PeptideAxes       # Peptide sampling
+from puckepy.confsampling import Fivering, FiveringAxes     # Five-membered ring sampling
+from puckepy.confsampling import Sixring, SixringAxes       # Six-membered ring sampling
+```
+
+```python
+from puckepy.geometry import bondlength, bondangle, dihedral    # Geometry calculations
+```
+
+```python
+
+from puckepy.formalism import CP5, AS, CP6, SP              # Puckering Formalisms
+from puckepy.formalism import Pdb, Xyz                      # Input with implemented Filetypes
+from puckepy.formalism import write_to_pdb, write_to_xyz    # Output with implemented Filetypes
+```
+</br>
+
+</br>
 
 ## Conformational sampling
 
-### Sampling of the *Peptide* space
+### Sample *Peptide*
 ```python
 from puckepy.confsampling import Peptide, PeptideAxes
 pepspace = Peptide(37)
@@ -15,7 +35,7 @@ for x, y in zip(pepaxes.x, pepaxes.y):
     print(x, y)
 ```
 
-###  Sampling of the *Fivering* space
+###  Sample *Five-membered ring* 
 ```python
 from puckepy.confsampling import Fivering, FiveringAxes
 fivespace = Fivering(21)
@@ -27,7 +47,7 @@ for zx, zy in zip(fiveaxes.zx, fiveaxes.zy):
     print(zx, zy)
 ```
 
-### Sampling of the *Sixring* space
+### Sample *Six-membered ring*
 ```python
 from puckepy.confsampling import Sixring, SixringAxes
 sixspace = Sixring(21)
@@ -38,11 +58,13 @@ sixaxes = Sixring(21)
 for theta, phi in zip(sixaxes.theta, sixaxes.phi): 
     print(sixaxes.rho, theta, phi)
 ```
-<br>
+</br>
+
+</br>
 
 ## Puckering formalism
 
-### Calculating the pucker coordinates of a *five-membered ring* by the *Cremer-Pople* formalism, from a *pdb* formatted file
+### Calculate pucker of a *five-membered ring* by *Cremer-Pople* from a *pdb*
 ```python
 from puckepy.formalism import Pdb, CP5
 pdb = Pdb("./fivering_3endo.pdb").parse()
@@ -53,7 +75,7 @@ print(amplitude, phaseangle)
 >>>  0.352266 85.6
 ```
 
-### Calculating the pucker coordinates of a *five-membered ring* by the *Cremer-Pople* formalism, from a *xyz* formatted file
+### Calculate pucker of a *five-membered ring* by *Cremer-Pople* from an *xyz*
 ```python
 from puckepy.formalism import Xyz, CP5
 xyz = Xyz("./fivering_3endo.xyz").parse()
@@ -64,7 +86,7 @@ print(amplitude, phaseangle)
 >>>  0.352266 85.6
 ```
 
-### Calculating the pucker coordinates of a *five-membered ring* by the *Altona-Sundaralingam* formalism, from a *xyz* formatted file
+### Calculate pucker of a *five-membered ring* by *Altona-Sundaralingam* from an *xyz*
 ```python
 from puckepy.formalism import Xyz, AS
 xyz = Xyz("./fivering_3endo.xyz").parse()
@@ -75,7 +97,7 @@ print(amplitude, phaseangle)
 >>>  0.352266 355.6
 ```
 
-### Calculating the pucker coordinates of a *six-membered ring* by the *Altona-Sundaralingam* formalism, from a *pdb* formatted file
+### Calculate pucker of a *six-membered ring* by *Cremer-Pople* from a *pdb*
 ```python
 from puckepy.formalism import Pdb, CP6
 pdb = Pdb("./sixring_chair.pdb").parse()
@@ -85,7 +107,7 @@ amplitude, phaseangle, theta = CP6().from_atomnames(pdb=pdb,
 print(amplitude, phaseangle, theta)
 >>>  0.6587 120.7 1.2
 ```
-### Calculating the pucker coordinates of a *six-membered ring* by the *Strauss-Pickett* formalism, from a *pdb* formatted file
+### Calculate pucker of a *six-membered ring* by *Strauss-Pickett* from a *pdb*
 ```python
 from puckepy.formalism import Pdb, CP6
 pdb = Pdb("./sixring_chair.pdb").parse()
@@ -96,7 +118,7 @@ print(alphas[0], alphas[1], alphas[2])
 >>>  139.8816 146.5372 139.8816
 ```
 
-### Calculating the pucker coordinates of a *duplex of five-membered ring residues* by the *Cremer-Pople* formalism, from a *pdb* formatted file
+### Calculate pucker of a *double stranded helix* of *five-membered ring* residues by *Cremer-Pople* from a *pdb*
 ```python
 from puckepy.formalism import Pdb, CP5
 listOfPdb = Pdb("./fivering_3endo.pdb").parse_by_monomers()
@@ -108,12 +130,13 @@ for pdbMonomer in listOfPdb :
 >>>  0.368456 87.1
 >>>  ...      ...
 ```
-<br>
+</br>
 
+</br>
 
 ## Invert puckering coordinates
 
-### Inverting *Cremer-Pople* coordinates of a *five-membered ring* to its molecular structure
+### Invert *Cremer-Pople* coordinates of a *five-membered ring*
 ```python
   from puckepy import formalism
   cp5 = formalism.CP5(0.35, 90.)
@@ -121,7 +144,7 @@ for pdbMonomer in listOfPdb :
   
   formalism.write_to_pdb("inverted_fivering", inversion, "FIV")
 ```
-### Inverting *Cremer-Pople* coordinates of a *six-membered ring* to its molecular structure
+### Invert *Cremer-Pople* coordinates of a *six-membered ring*
 ```python
   from puckepy import formalism
   cp6 = formalism.CP6(0.67, 120., 1.5)
@@ -129,7 +152,10 @@ for pdbMonomer in listOfPdb :
   
   formalism.write_to_pdb("inverted_sixring", inversion, "SIX")
 ```
-<br>
+</br>
+
+</br>
+
 
 ## Basic geometry operations
 

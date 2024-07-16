@@ -1,6 +1,5 @@
 # Installation
 
-`Puckepy` requires Python version >= 3.8
 ## Pip install (Work In Progress)
 
 Will be published to pip once the article is out
@@ -30,7 +29,7 @@ $ python3 -m venv .venv
 $ source .venv/bin/activate
 ```
 
-Download and compile the **puckepy library**
+Compile the **puckepy library**
 ```shell
 $ maturin develop
 ```

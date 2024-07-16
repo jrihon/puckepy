@@ -12,6 +12,7 @@ A library to describe and characterise molecules, `written in Rust btw`
 - The Python library has been annotated with python stub files `.pyi`. This allows `definition on hover` functionality, useful for reading docstrings while writing in your preferred editor.
 
 ## Installation
+Requires Python3 `>= 3.10` and Rust `>= 1.79`
 - Installation protocol can be found [here](https://github.com/jrihon/puckepy/blob/main/docs/installation.md) !
 
 ## Author

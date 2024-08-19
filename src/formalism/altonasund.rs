@@ -1,14 +1,9 @@
-#![allow(unused)]
-use std::f64::consts::PI;
 use pyo3::{pymethods, pyclass};
 
-use crate::conf_sampling::sixring::TWOPI;
 use crate::geometry::molecule_ops::dihedral;
 use crate::formalism::{
     moleculefile::Pdb,
-    PIS_IN_180,
     search_atomname::FindString,
-//    inversion::fivering::invert_fivering,
 };
 
 const PIOVERFIVE: f64 = 0.628318530718;
@@ -42,6 +37,12 @@ impl AS {
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
 
+        let _ = match query_names.len() {
+            5 => 5,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+        };
+
+
         // Search for the indices of the atom names
         for name in query_names.iter() {
             match pdb.atomnames.at_position(name) {
@@ -55,12 +56,17 @@ impl AS {
     }
 
     // Calculate Altona Sundaralingam formalism by the indices
-    fn from_indices(&self, coord_array: Vec<[f64;3]>, indices: Vec<usize>) -> (f64, f64) {
+    fn from_indices(&self, coordinates: Vec<[f64;3]>, indices: Vec<usize>) -> (f64, f64) {
         
         let mut molarray: Vec<[f64; 3]> = vec![];
 
+        let _ = match indices.len() {
+            5 => 5,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+        };
+
         for idx in indices {
-            molarray.push(coord_array[idx])
+            molarray.push(coordinates[idx])
         }
 
         altona_sundaralingam(&mut molarray)

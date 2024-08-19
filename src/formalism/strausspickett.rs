@@ -36,6 +36,12 @@ impl SP {
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
 
+        let _ = match query_names.len() {
+            6 => 6,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+        };
+
+
         // Search for the indices of the atom names
         for name in query_names.iter() {
             match pdb.atomnames.at_position(name) {

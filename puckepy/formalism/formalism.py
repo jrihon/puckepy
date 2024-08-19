@@ -111,12 +111,12 @@ class CP5:
             Returns the `amplitude` and `phase angle`
 
             >>> pdb = Pdb("adenosine.pdb")
-            >>> pdb.parse()
-            >>> amplitude, phaseAngle = CP5().from_indices(coordinates=pdb.coordinates, query_names=[7, 8, 26, 24, 5])
+            >>> pdbContent = pdb.parse()
+            >>> amplitude, phaseAngle = CP5().from_indices(coordinates=pdbContent.coordinates, indices=[7, 8, 26, 24, 5])
 
             >>> xyz = Xyz("adenosine.xyz")
             >>> coordinates = xyz.parse()
-            >>> amplitude, phaseAngle = CP5().from_indices(coordinates=coordinates, query_names=[7, 8, 26, 24, 5])
+            >>> amplitude, phaseAngle = CP5().from_indices(coordinates=coordinates, indices=[7, 8, 26, 24, 5])
         """
         return self.from_indices(coordinates, indices)
 
@@ -167,12 +167,12 @@ class CP6:
             Returns the `amplitude`, `phase angle` and `theta`
 
             >>> pdb = Pdb("homodna_adenosine.pdb")
-            >>> pdb.parse()
-            >>> amplitude, phaseAngle, theta = CP6().from_indices(coordinates=pdb.coordinates, query_names=[7, 8, 26, 24, 5, 6])
+            >>> pdbContent = pdb.parse()
+            >>> amplitude, phaseAngle, theta = CP6().from_indices(coordinates=pdbContent.coordinates, indices=[7, 8, 26, 24, 5, 6])
 
             >>> xyz = Xyz("homodna_adenosine.xyz")
             >>> coordinates = xyz.parse()
-            >>> amplitude, phaseAngle, theta = CP6().from_indices(coordinates=coordinates, query_names=[7, 8, 26, 24, 5, 6])
+            >>> amplitude, phaseAngle, theta = CP6().from_indices(coordinates=coordinates, indices=[7, 8, 26, 24, 5, 6])
         """
         return self.from_indices(coordinates, indices)
 
@@ -218,23 +218,16 @@ class AS:
             Returns the `amplitude` and `phase angle`
 
             >>> pdb = Pdb("adenosine.pdb")
-            >>> pdb.parse()
-            >>> amplitude, phaseAngle = AS().from_indices(coordinates=pdb.coordinates, query_names=[7, 8, 26, 24, 5])
+            >>> pdbContent = pdb.parse()
+            >>> amplitude, phaseAngle = AS().from_indices(coordinates=pdbContent.coordinates, indices=[7, 8, 26, 24, 5])
 
             >>> xyz = Xyz("adenosine.xyz")
             >>> coordinates = xyz.parse()
-            >>> amplitude, phaseAngle = AS().from_indices(coordinates=coordinates, query_names=[7, 8, 26, 24, 5])
+            >>> amplitude, phaseAngle = AS().from_indices(coordinates=coordinates, indices=[7, 8, 26, 24, 5])
         """
 
         return self.from_indices(coordinates, indices)
 
-#    This function is not finished yet
-#    def invert(self) -> list[list[float]]:
-#        """ Converts to AS coordinates into CP5 and then performs
-#            an inversion of the Cremer-Pople coordinates and get returned
-#            the molecular conformation the five-membered ring results in.
-#        """
-#        return self.invert()
 
 
 class SP :
@@ -256,8 +249,7 @@ class SP :
             To keep true to the formalism, please adhere to the specified sequence unless confident.
 
             >>> pdb = Pdb("homodna_adenosine.pdb")
-            >>> pdb.parse()
-            >>> alphas, betas = SP().from_atomnames(pdb=pdb.coordinates, query_names=["O5'", "C1'", "C2'", "C3'", "C4'", "C5'"])
+            >>> alphas, betas = SP().from_atomnames(pdb=pdb, query_names=["O5'", "C1'", "C2'", "C3'", "C4'", "C5'"])
 
             >>> xyz = Xyz("homodna_adenosine.xyz")
             >>> coordinates = xyz.parse()
@@ -270,32 +262,32 @@ class SP :
 
             >>> xyz = Xyz("homodna_adenosine.xyz")
             >>> coordinates = xyz.parse()
-            >>> alphas, betas = SP().from_indices(coordinates=coordinates, query_names=[7, 8, 26, 24, 5, 6])
+            >>> alphas, betas = SP().from_indices(coordinates=coordinates, indices=[7, 8, 26, 24, 5, 6])
         """
         return self.from_indices(coordinates, indices)
 
 
 
-def write_to_pdb(fname: str, coordinates: list[Coordinates3D], residuename: str) -> None :
+def write_to_pdb(filename: str, coordinates: list[Coordinates3D], residuename: str) -> None :
     """ Write a set of coordinates with their respective atomnames to a `.pdb` 
         formatted file. 
 
         >>> conf_coordinates = CP5(0.35, 90.).invert() # 2' endo conformation
-        >>> write_to_pdb(fname: "2endo.pdb", 
+        >>> write_to_pdb(filename: "2endo.pdb", 
         >>>              coordinates=conf_coordinates,
         >>>              residuename="ABC"
         >>>              )
     """
 
-    puckepy.formalism.write_to_pdb(fname, coordinates, residuename)
+    puckepy.formalism.write_to_pdb(filename, coordinates, residuename)
 
 
-def write_to_xyz(fname: str, coordinates: list[Coordinates3D]) -> None :
+def write_to_xyz(filename: str, coordinates: list[Coordinates3D]) -> None :
     """ Write a set of coordinates to an `.xyz` formatted file. 
 
         >>> conf_coordinates = CP5(0.35, 90.).invert() # 2' endo conformation
-        >>> write_to_pdb(fname: "2endo.xyz", 
+        >>> write_to_pdb(filename: "2endo.xyz", 
         >>>              coordinates=conf_coordinates,
         >>>              )
     """
-    puckepy.formalism.write_to_xyz(fname, coordinates)
+    puckepy.formalism.write_to_xyz(filename, coordinates)

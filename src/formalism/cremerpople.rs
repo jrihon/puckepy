@@ -51,6 +51,11 @@ impl CP5 {
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
 
+        let _ = match query_names.len() {
+            5 => 5,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+        };
+
         // Search for the indices of the atom names
         for name in query_names.iter() {
             match pdb.atomnames.at_position(name) {
@@ -66,9 +71,9 @@ impl CP5 {
     }
 
     // Calculate Cremer-Pople formalism by prompted indices
-    fn from_indices(&self, coord_array : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
+    fn from_indices(&self, coordinates : Vec<[f64; 3]>, indices: Vec<usize>) -> (f64, f64) {
         
-        let mut molarray: Vec<[f64; 3]>  = indices.iter().map(|i| coord_array[*i]).collect();
+        let mut molarray: Vec<[f64; 3]>  = indices.iter().map(|i| coordinates[*i]).collect();
 
         match cremer_pople(&mut molarray) {
            MemberedRing::Five(cp) => (cp.amplitude, cp.phase_angle),
@@ -130,6 +135,12 @@ impl CP6 {
 
         // Make empty vec :
         let mut indices: Vec<usize> = Vec::with_capacity(6);
+
+        let _ = match query_names.len() {
+            6 => 6,
+           _ => panic!("An amount, not equal to 5, has been queried. Expected 5 elements.")
+        };
+
 
         // Search for the indices of the atom names
         for name in query_names.iter() {

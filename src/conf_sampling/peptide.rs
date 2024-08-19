@@ -15,11 +15,11 @@ pub struct Peptide {
 impl Peptide {
 
     #[new]
-    fn new(num: u16) -> Self {
+    fn new(interval: u16) -> Self {
 
-        let amount = (num * num) as usize;
+        let amount = (interval * interval) as usize;
 
-        let axes = PAxes::new(num as usize);
+        let axes = PAxes::new(interval as usize);
 
         let mut phi = Vec::with_capacity(amount);
         let mut psi = Vec::with_capacity(amount);
@@ -29,8 +29,8 @@ impl Peptide {
         for i in 0..amount as usize {
 
             // For every x value, return all y values
-            xi = (i as f64 / num as f64).floor(); // floor, to return x axis value
-            yi = i as f64 % num as f64; // return with modulo, to return y axis value
+            xi = (i as f64 / interval as f64).floor(); // floor, to return x axis value
+            yi = i as f64 % interval as f64; // return with modulo, to return y axis value
 
             // fill out the array
             phi.push(axes.x[xi as usize]); 
@@ -57,11 +57,11 @@ pub struct PeptideAxes {
 impl PeptideAxes {
 
     #[new]
-    fn new(num: u16) -> Self {
+    fn new(interval: u16) -> Self {
         
-        let amount = (num * num) as usize;
+        let amount = (interval * interval) as usize;
 
-        let axes = PAxes::new(num as usize);
+        let axes = PAxes::new(interval as usize);
 
         let mut phi = Vec::with_capacity(amount);
         let mut psi = Vec::with_capacity(amount);
@@ -71,8 +71,8 @@ impl PeptideAxes {
         for i in 0..amount as usize {
 
             // For every x value, return all y values
-            xi = (i as f64 / num as f64).floor(); // floor, to return x axis value
-            yi = i as f64 % num as f64; // return with modulo, to return y axis value
+            xi = (i as f64 / interval as f64).floor(); // floor, to return x axis value
+            yi = i as f64 % interval as f64; // return with modulo, to return y axis value
 
             // fill out the array
             phi.push(axes.x[xi as usize]); 
@@ -99,10 +99,10 @@ struct PAxes {
 
 impl PAxes {
     /// Initialise the struct with an array of zeroes
-    fn new(num: usize) -> PAxes {
+    fn new(interval: usize) -> PAxes {
         PAxes {
-            x: Array1::linspace(0., 360., num).into_raw_vec(),
-            y: Array1::linspace(0., 360., num).into_raw_vec(),
+            x: Array1::linspace(0., 360., interval).into_raw_vec(),
+            y: Array1::linspace(0., 360., interval).into_raw_vec(),
         }
     }
 }

@@ -18,14 +18,14 @@ pub struct Fivering {
 impl Fivering {
     
     #[new]
-    fn new(num: u16) -> Self {
+    fn new(interval: u16) -> Self {
         
         // Derive torsion angles from the given axes
-        let polars = FAxes::new(num as usize);
+        let polars = FAxes::new(interval as usize);
 
         // Setup variable
-        let amount : u16 = num * num;
-        let num_f64 : f64 = num as f64;
+        let amount : u16 = interval * interval;
+        let interval_f64 : f64 = interval as f64;
 
         // Initialise equation-specific constants
         let denominator_x : f64 = FOURPIOVERFIVE.cos();
@@ -40,8 +40,8 @@ impl Fivering {
 
         for i in 0..amount as usize {
             // Calculate indexes for the array axises
-            x = (i as f64 / num_f64).floor(); // X axis, returns with floor
-            y = i as f64 % num_f64; // Y axis, return with modulo
+            x = (i as f64 / interval_f64).floor(); // X axis, returns with floor
+            y = i as f64 % interval_f64; // Y axis, return with modulo
 
             // fill out the array
             nu1.push((polars.zx[x as usize] * denominator_x ) + ( polars.zy[y as usize] * denominator_y));
@@ -67,14 +67,14 @@ pub struct FiveringAxes {
 impl FiveringAxes {
 
     #[new]
-    fn new(num: u16) -> Self {
+    fn new(interval: u16) -> Self {
 
         // Derive torsion angles from the given axes
-        let polars = FAxes::new(num as usize);
+        let polars = FAxes::new(interval as usize);
 
         // Setup variable
-        let amount : u16 = num * num;
-        let num_f64 : f64 = num as f64;
+        let amount : u16 = interval * interval;
+        let interval_f64 : f64 = interval as f64;
 
         // Instance Fivering struct
         let mut zx: Vec<f64> = Vec::with_capacity(amount as usize);
@@ -84,8 +84,8 @@ impl FiveringAxes {
 
         for i in 0..amount as usize {
             // Calculate indexes for the array axises
-            x = (i as f64 / num_f64).floor(); // X axis, returns with floor
-            y = i as f64 % num_f64; // Y axis, return with modulo
+            x = (i as f64 / interval_f64).floor(); // X axis, returns with floor
+            y = i as f64 % interval_f64; // Y axis, return with modulo
 
             // fill out the array
             zx.push(polars.zx[x as usize]);
@@ -114,10 +114,10 @@ struct FAxes {
 // The module has no purpose in allowing the user to generate their own Fivering Class
 impl FAxes {
 
-    fn new(num: usize) -> FAxes {
+    fn new(interval: usize) -> FAxes {
         FAxes {
-            zx: Array1::linspace(-60., 60., num).into_raw_vec(),
-            zy: Array1::linspace(-60., 60., num).into_raw_vec(),
+            zx: Array1::linspace(-60., 60., interval).into_raw_vec(),
+            zy: Array1::linspace(-60., 60., interval).into_raw_vec(),
         }
         
     }

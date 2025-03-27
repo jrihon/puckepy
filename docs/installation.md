@@ -1,12 +1,14 @@
 # Installation
 
-## Pip install (Work In Progress)
+Linux only !
 
-Will be published to pip once the article is out
-
+## Install through pip
+```shell
+$ pip install puckepy
+```
 
 ## Local installation
-For other installation methods, visit the [maturin.rs website](https://www.maturin.rs/installation)
+Requires Python3 `>= 3.12` and Rust `>= 1.85`
 
 Install **Rust**
 ```shell 
@@ -33,3 +35,5 @@ Compile the **puckepy library**
 ```shell
 $ maturin develop
 ```
+
+For other installation methods of maturin, visit the [maturin.rs website](https://www.maturin.rs/installation)

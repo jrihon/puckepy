@@ -12,3 +12,4 @@
 /docs/installation.rst
 /docs/documentation.rst
 /tests/__pycache__/
+/dist/

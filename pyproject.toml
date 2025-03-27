@@ -1,3 +1,15 @@
+[project]
+name = "puckepy"
+version = "1.0.0"
+authors = [
+    { name = "Jérôme Rihon", email = "jeromerihon@gmail.com"},
+]
+description = "Quantify conformations of molecules"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+license-files = ["LICEN[CS]E"]
+
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"

@@ -3,7 +3,7 @@ import unittest
 
 #run in the current directory to run tests
 #```
-#$ python -m unittest everything_test.py
+#$ python -m unittest test_all_modules.py
 #```
 #
 # for verbose, run 
@@ -29,9 +29,9 @@ class Formalism(unittest.TestCase):
 
     def setUp(self) :
 
-        self.fiveringPdb = puckepy.formalism.Pdb(filename="./fivering_adenosine.pdb").parse()
-        self.sixringPdb = puckepy.formalism.Pdb(filename="./sixring_morpholino.pdb").parse()
-        self.fiveringXyz = puckepy.formalism.Xyz(filename="./furanose.xyz").parse()
+        self.fiveringPdb = puckepy.formalism.Pdb(filename="./data/fivering_adenosine.pdb").parse()
+        self.sixringPdb = puckepy.formalism.Pdb(filename="./data/sixring_morpholino.pdb").parse()
+        self.fiveringXyz = puckepy.formalism.Xyz(filename="./data/furanose.xyz").parse()
 
         # CP5() class
         self.cp51 = puckepy.formalism.CP5(0.5, 180.)
@@ -177,7 +177,7 @@ class Geometry(unittest.TestCase):
 
 
     def setUp(self) :
-        self.fiveringXyz = puckepy.formalism.Xyz(filename="./furanose.xyz").parse()
+        self.fiveringXyz = puckepy.formalism.Xyz(filename="./data/furanose.xyz").parse()
 
 
         self.dihedral = puckepy.geometry.dihedral(

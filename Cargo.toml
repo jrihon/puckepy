@@ -1,13 +1,13 @@
 [package]
 name = "puckepy"
-version = "0.7.0"
+version = "1.0.0"
 edition = "2021"
 description = "Python module for conformational sampling research on small molecules"
 authors = ["Jérôme Rihon <jeromerihon@gmail.com>"]
 readme = "README.md" 
 repository = "https://github.com/jrihon/puckepy"
 homepage = "https://github.com/jrihon/puckepy"
-rust-version = "1.79"
+rust-version = "1.85"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [lib]

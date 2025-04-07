@@ -54,7 +54,7 @@ sixspace = Sixring(21)
 for a1, a2, a3 in zip(sixspace.alpha1, sixspace.alpha2, sixspace.alpha3): 
     print(a1, a2, a3)
 
-sixaxes = Sixring(21)
+sixaxes = SixringAxes(21)
 for theta, phi in zip(sixaxes.theta, sixaxes.phi): 
     print(sixaxes.rho, theta, phi)
 ```
